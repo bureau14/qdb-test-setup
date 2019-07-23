@@ -28,10 +28,10 @@ if [[ $(($(count_instances))) != 0 ]]; then
 fi
 
 echo "Cluster insecure:"
-print_instance_log ${LOG_DIR_INSECURE} qdbd_insecure.out.txt qdbd_insecure.err.txt
+print_instance_log ${LOG_DIR_INSECURE} ${CONSOLE_LOG_INSECURE} ${CONSOLE_ERR_LOG_INSECURE}
 
 echo "Cluster secure:"
-print_instance_log ${LOG_DIR_SECURE} qdbd_secure.out.txt qdbd_secure.err.txt
+print_instance_log ${LOG_DIR_SECURE} ${CONSOLE_LOG_SECURE} ${CONSOLE_ERR_LOG_SECURE}
 
 cleanup
 

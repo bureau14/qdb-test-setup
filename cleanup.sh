@@ -22,15 +22,15 @@ function full_cleanup {
     cleanup
     echo "Removing ${LOG_DIR_INSECURE}..."
     rm -Rf ${LOG_DIR_INSECURE} || true
-    echo "Removing qdbd_insecure.out.txt ..."
-    rm -Rf qdbd_insecure.out.txt || true
-    echo "Removing qdbd_insecure.err.txt ..."
-    rm -Rf qdbd_insecure.err.txt || true
+    echo "Removing ${CONSOLE_LOG_INSECURE} ..."
+    rm -Rf ${CONSOLE_LOG_INSECURE} || true
+    echo "Removing ${CONSOLE_ERR_LOG_INSECURE} ..."
+    rm -Rf ${CONSOLE_ERR_LOG_INSECURE} || true
 
     echo "Removing ${LOG_DIR_SECURE}..."
     rm -Rf ${LOG_DIR_SECURE} || true
-    echo "Removing qdbd_secure.out.txt ..."
-    rm -Rf qdbd_secure.out.txt || true
-    echo "Removing qdbd_secure.err.txt ..."
-    rm -Rf qdbd_secure.err.txt || true
+    echo "Removing ${CONSOLE_LOG_SECURE} ..."
+    rm -Rf ${CONSOLE_LOG_SECURE} || true
+    echo "Removing ${CONSOLE_ERR_LOG_SECURE} ..."
+    rm -Rf ${CONSOLE_ERR_LOG_SECURE} || true
 }

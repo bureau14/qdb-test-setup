@@ -14,8 +14,8 @@ qdb_gen_cluster_keys ${CLUSTER_PUBLIC_KEY} ${CLUSTER_PRIVATE_KEY}
 
 echo "Cluster insecure:"
 ARGS="-a ${URI_INSECURE} -r ${DATA_DIR_INSECURE} -l ${LOG_DIR_INSECURE}"
-qdb_start "${ARGS}" qdbd_insecure.out.txt qdbd_insecure.err.txt
+qdb_start "${ARGS}" ${CONSOLE_LOG_INSECURE} ${CONSOLE_ERR_LOG_INSECURE}
 
 echo "Cluster secure:"
 ARGS_SECURE="-c qdbd.cfg -a ${URI_SECURE} -r ${DATA_DIR_SECURE} -l ${LOG_DIR_SECURE} --security=true --cluster-private-file=${CLUSTER_PRIVATE_KEY} --user-list=${USER_LIST}"
-qdb_start "${ARGS_SECURE}" qdbd_secure.out.txt qdbd_secure.err.txt
+qdb_start "${ARGS_SECURE}" ${CONSOLE_LOG_SECURE} ${CONSOLE_ERR_LOG_SECURE}
