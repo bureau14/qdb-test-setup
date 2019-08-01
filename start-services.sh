@@ -30,6 +30,6 @@ sleep 5
 
 instances_running=$(count_instances)
 if [[ $((${instances_running})) != 2 ]] ; then
-    echo "${instances_running} ${QDBD_FILENAME} instances were not started properly."
+    echo "${instances_running} of 2 ${QDBD_FILENAME} instances were started properly."
     exit 1
 fi
