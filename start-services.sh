@@ -25,3 +25,10 @@ if [[ -f ${CONFIG_SECURE} ]]; then
     ARGS_SECURE="${ARGS_SECURE} -c ${CONFIG_SECURE}"
 fi
 qdb_start "${ARGS_SECURE}" ${CONSOLE_LOG_SECURE} ${CONSOLE_ERR_LOG_SECURE}
+
+sleep 5
+
+if count_instances != 2 ; then
+    echo "${QDBD_FILENAME} instances were not started properly."
+    exit 1
+fi
