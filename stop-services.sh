@@ -35,7 +35,8 @@ echo "Cluster secure:"
 
 cleanup
 
-if ! count_instances; then
-    echo "${QDBD_FILENAME} instances were not killed properly"
+instances_still_running=$(count_instances)
+if [[ $((${instances_still_running})) != 0 ]] ; then
+    echo "${instances_still_running} ${QDBD_FILENAME} instance(s) were not killed properly"
     exit 1
 fi

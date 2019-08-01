@@ -34,14 +34,14 @@ function qdb_start {
 
 function count_instances {
     local instances_count=$(($(ps aux | grep qdbd | grep -v "grep" | wc -l)))
-    return ${instances_count}
+    echo ${instances_count}
 }
 
 function check_existing_instances {
-    local instances=$(ps aux | grep qdbd | grep -v "grep")
     local instances_count=$(count_instances)
     echo "${instances_count} are running."
     if ! ${instances_count} ; then
+        local instances=$(ps aux | grep qdbd | grep -v "grep")
         echo "${instances}"
     fi
 }
