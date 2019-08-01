@@ -14,12 +14,16 @@ QDBSH="${QDB_DIR}/qdbsh"
 QDB_USER_ADD="${QDB_DIR}/qdb_user_add"
 QDB_CLUSTER_KEYGEN="${QDB_DIR}/qdb_cluster_keygen"
 
+set +u
+
 if [[ ${CMAKE_BUILD_TYPE} == "Debug" ]]; then
     QDBD="${QDBD}d"
     QDBSH="${QDBSH}d"
     QDB_USER_ADD="${QDB_USER_ADD}d"
     QDB_CLUSTER_KEYGEN="${QDB_CLUSTER_KEYGEN}d"
 fi
+
+set -u
 
 case "$(uname)" in
     MINGW*)
@@ -31,3 +35,5 @@ case "$(uname)" in
     *)
     ;;
 esac
+
+QDBD_FILENAME=${QDBD##*/}

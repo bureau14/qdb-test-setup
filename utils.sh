@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -xe
+set -eux
 
 SCRIPT_DIR="$(cd "$(dirname -- "${BASH_SOURCE[0]}")" >/dev/null && pwd)"
 source "$SCRIPT_DIR/binaries.sh"
@@ -32,21 +32,16 @@ function qdb_start {
     $QDBD ${args} 1>${output} 2>${err_output} &
 }
 
-function list_instances {
-    local instances=$(ps aux | grep ${QDBD} | grep -v "grep")
-    return ${instances}
-}
-
 function count_instances {
-    local instances_count=$(($(list_instances | wc -l)))
+    local instances_count=$(($(ps aux | grep qdbd | grep -v "grep" | wc -l)))
     return ${instances_count}
 }
 
 function check_existing_instances {
-    local instances=$(list_instances)
-    local instances_count=$(($(count_instances)))
+    local instances=$(ps aux | grep qdbd | grep -v "grep")
+    local instances_count=$(count_instances)
     echo "${instances_count} are running."
-    if [[ ${instances_count} != 0 ]]; then
+    if ! ${instances_count} ; then
         echo "${instances}"
     fi
 }
