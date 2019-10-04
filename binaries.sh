@@ -2,7 +2,10 @@
 
 set -xe
 
-QDB_DIR="qdb/bin"
+if [[ -z ${QDB_DIR+set} ]]; then
+    QDB_DIR="qdb/bin"
+    echo "Setting QDB_DIR to ${QDB_DIR}"
+fi
 
 if [[ ! -d ${QDB_DIR} ]]; then
     echo "Please provide a valid binary directory, got: ${QDB_DIR}"
