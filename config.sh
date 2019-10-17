@@ -16,7 +16,7 @@ CONSOLE_ERR_LOG_INSECURE="qdbd_log_insecure.err.txt"
 
 DATA_DIR_SECURE="secure/db"
 LOG_DIR_SECURE="secure/log"
-URI_SECURE="127.0.0.1:2837"
+URI_SECURE="127.0.0.1:2838"
 CONFIG_SECURE="qdbd_secure.cfg"
 CONSOLE_LOG_SECURE="qdbd_log_secure.out.txt"
 CONSOLE_ERR_LOG_SECURE="qdbd_log_secure.err.txt"
