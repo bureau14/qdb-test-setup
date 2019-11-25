@@ -26,10 +26,20 @@ if [[ -f ${CONFIG_SECURE} ]]; then
 fi
 qdb_start "${ARGS_SECURE}" ${CONSOLE_LOG_SECURE} ${CONSOLE_ERR_LOG_SECURE}
 
-sleep 5
+sleep_time=5
+timeout=60
+end_time=$(($(date +%s) + $timeout))
+while [ $(date +%s) -le $end_time ]; do
+    instances_running=$(count_instances)
+    if [[ $((${instances_running})) == 2 ]] ; then
+        echo "${instances_running} ${QDBD_FILENAME} instances were started properly."
+        exit 0
+    else
+        instances_not_start=$((2 - ${instances_running}))
+        echo "$instances_not_start ${QDBD_FILENAME} instances were not yet started."
+    fi
+    sleep $sleep_time
+done
 
-instances_running=$(count_instances)
-if [[ $((${instances_running})) != 2 ]] ; then
-    echo "${instances_running} of 2 ${QDBD_FILENAME} instances were started properly."
-    exit 1
-fi
+echo "Could not start all instances, aborting..."
+exit 1
