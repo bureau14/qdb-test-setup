@@ -7,6 +7,7 @@ source "$SCRIPT_DIR/config.sh"
 source "$SCRIPT_DIR/utils.sh"
 source "$SCRIPT_DIR/cleanup.sh"
 
+kill_instances
 full_cleanup
 
 qdb_add_user ${USER_LIST} ${USER_PRIVATE_KEY} "test-user"
@@ -34,6 +35,9 @@ while [ $(date +%s) -le $end_time ]; do
     if [[ $((${instances_running})) == 2 ]] ; then
         echo "${instances_running} ${QDBD_FILENAME} instances were started properly."
         exit 0
+    elif [[ $((${instances_running})) > 2 ]] ; then
+        echo "Too many ($instances_not_start) ${QDBD_FILENAME} instances were started, aborting."
+        exit 1
     else
         instances_not_start=$((2 - ${instances_running}))
         echo "$instances_not_start ${QDBD_FILENAME} instances were not yet started."

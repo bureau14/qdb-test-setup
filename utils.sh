@@ -59,3 +59,22 @@ function print_instance_log {
     echo "${err_output}: "
     cat ${err_output} || true
 }
+
+function kill_instances {
+    echo "Killing ${QDBD_FILENAME} instances..."
+    case "$(uname)" in
+        MINGW*)
+            # we need double slashes for the flag to be recognized
+            # a simple slash would cause this error: Invalid argument/option - 'C:/Program Files/Git/IM'.
+            #
+            # See http://www.mingw.org/wiki/Posix_path_conversion
+            Taskkill //IM ${QDBD_FILENAME} //F || true
+        ;;
+        *)
+            pkill -SIGKILL -f ${QDBD_FILENAME} || true
+        ;;
+    esac
+    if [[ $(($(count_instances))) != 0 ]]; then
+        sleep 30
+    fi
+}
