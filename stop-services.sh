@@ -7,7 +7,6 @@ source "$SCRIPT_DIR/config.sh"
 source "$SCRIPT_DIR/utils.sh"
 source "$SCRIPT_DIR/cleanup.sh"
 
-check_existing_instances || true
 kill_instances
 
 echo "Cluster insecure:"

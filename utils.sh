@@ -37,15 +37,6 @@ function count_instances {
     echo ${instances_count}
 }
 
-function check_existing_instances {
-    local instances_count=$(count_instances)
-    echo "${instances_count} are running."
-    if ! ${instances_count} ; then
-        local instances=$(ps aux | grep qdbd | grep -v "grep")
-        echo "${instances}"
-    fi
-}
-
 function print_instance_log {
     local log_directory=$1;shift
     local output=$1;shift
@@ -74,7 +65,9 @@ function kill_instances {
             pkill -SIGKILL -f ${QDBD_FILENAME} || true
         ;;
     esac
+    sleep 5
     if [[ $(($(count_instances))) != 0 ]]; then
-        sleep 30
+        echo "Could not kill all instances, aborting..."
+        exit 1
     fi
 }
