@@ -36,7 +36,7 @@ while [ $(date +%s) -le $end_time ]; do
     insecure_check=$(check_address $URI_INSECURE)
     secure_check=$(check_address $URI_SECURE)
 
-    if [[ $insecure_check == "" && $secure_check == "" ]]; then
+    if [[ $insecure_check != "" && $secure_check != "" ]]; then
         echo "qdbd secure and insecure were started properly."
         exit 0
     fi
