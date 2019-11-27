@@ -31,18 +31,15 @@ sleep_time=5
 timeout=60
 end_time=$(($(date +%s) + $timeout))
 while [ $(date +%s) -le $end_time ]; do
-    instances_running=$(count_instances)
-    if [[ $((${instances_running})) == 2 ]] ; then
-        echo "${instances_running} ${QDBD_FILENAME} instances were started properly."
-        exit 0
-    elif [[ $((${instances_running})) > 2 ]] ; then
-        echo "Too many ($instances_not_start) ${QDBD_FILENAME} instances were started, aborting."
-        exit 1
-    else
-        instances_not_start=$((2 - ${instances_running}))
-        echo "$instances_not_start ${QDBD_FILENAME} instances were not yet started."
-    fi
     sleep $sleep_time
+
+    insecure_check=$(check_address $URI_INSECURE)
+    secure_check=$(check_address $URI_SECURE)
+
+    if [[ $insecure_check == "" && $secure_check == "" ]]; then
+        echo "qdbd secure and insecure were started properly."
+        exit 0
+    fi
 done
 
 echo "Could not start all instances, aborting..."

@@ -37,6 +37,36 @@ function count_instances {
     echo ${instances_count}
 }
 
+function get_pid_from_address {
+    local address=$1;shift
+    case "$(uname)" in
+        MINGW*)
+            local command="NETSTAT.EXE"
+        ;;
+        *)
+            local command="netstat"
+        ;;
+    esac
+    local pid=$($command -an -o | grep $address | grep "LISTENING" | tr -s [:space:] | cut -d' ' -f6)
+    echo $pid
+}
+
+function check_address {
+    local address=$1; shift
+    local pid=$(get_pid_from_address $address)
+
+    if [[ $pid == "" ]]; then
+        echo "No qdbd process found for $address."
+    else
+        local ps_result=$(ps aux | grep $pid | grep qdbd)
+        if [[ $ps_result == "" ]]; then
+            echo "$address address is used by another process, aborting..."
+            exit 1
+        fi
+    fi
+    echo ""
+}
+
 function print_instance_log {
     local log_directory=$1;shift
     local output=$1;shift
