@@ -14,7 +14,7 @@ qdb_add_user ${USER_LIST} ${USER_PRIVATE_KEY} "test-user"
 qdb_gen_cluster_keys ${CLUSTER_PUBLIC_KEY} ${CLUSTER_PRIVATE_KEY}
 
 echo "Cluster insecure:"
-ARGS_INSECURE="-a ${URI_INSECURE} -r ${DATA_DIR_INSECURE} -l ${LOG_DIR_INSECURE}"
+ARGS_INSECURE="-a ${URI_INSECURE} -r ${DATA_DIR_INSECURE} -l ${LOG_DIR_INSECURE} --enable-performance-profiling"
 if [[ -f ${CONFIG_INSECURE} ]]; then
     ARGS_INSECURE="${ARGS_INSECURE} -c ${CONFIG_INSECURE}"
 fi
