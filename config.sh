@@ -2,6 +2,8 @@
 
 set -xe
 
+# Static config
+
 USER_LIST="users.cfg"
 USER_PRIVATE_KEY="user_private.key"
 CLUSTER_PUBLIC_KEY="cluster_public.key"
@@ -20,3 +22,29 @@ URI_SECURE="127.0.0.1:2838"
 CONFIG_SECURE="qdbd_secure.cfg"
 CONSOLE_LOG_SECURE="qdbd_log_secure.out.txt"
 CONSOLE_ERR_LOG_SECURE="qdbd_log_secure.err.txt"
+
+DATA_DIR_INSECURE="insecure/db"
+LOG_DIR_INSECURE="insecure/log"
+URI_INSECURE="127.0.0.1:2836"
+CONFIG_INSECURE="qdbd_insecure.cfg"
+CONSOLE_LOG_INSECURE="qdbd_log_insecure.out.txt"
+CONSOLE_ERR_LOG_INSECURE="qdbd_log_insecure.err.txt"
+
+# Runtime configuration, parse arguments
+NODE_IDS=("0-0-0-1")
+
+# StackOverflow-driven development
+# - https://stackoverflow.com/a/14203146
+while [[ $# -gt 0 ]]
+do
+    key="$1"
+
+    case $key in
+        -i|--node-ids)
+            # Node IDS are a comma-separated list
+            IFS=', ' read -r -a NODE_IDS <<< "$2"
+            shift # past argument
+            shift # past value
+            ;;
+    esac
+done

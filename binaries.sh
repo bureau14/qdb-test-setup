@@ -13,6 +13,7 @@ if [[ ! -d ${QDB_DIR} ]]; then
 fi
 
 QDBD="${QDB_DIR}/qdbd"
+QDBSH="${QDB_DIR}/qdbsh"
 QDB_USER_ADD="${QDB_DIR}/qdb_user_add"
 QDB_CLUSTER_KEYGEN="${QDB_DIR}/qdb_cluster_keygen"
 

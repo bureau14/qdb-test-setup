@@ -56,6 +56,13 @@ function check_address {
     echo ""
 }
 
+function cluster_wait_for_stabilization {
+    local qdbsh_args=$@
+
+    ${QDBSH} ${qdbsh_args} -c "cluster_wait_for_stabilization 30000"
+    echo $? # return error code
+}
+
 function print_instance_log {
     local log_directory=$1;shift
     local output=$1;shift
