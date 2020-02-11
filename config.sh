@@ -48,11 +48,5 @@ do
             shift # past argument
             shift # past value
             ;;
-        --async-flush-deadline)
-            # Async flush deadline in ms
-            ASYNC_FLUSH_DEADLINE=$2
-            shift # past argument
-            shift # past value
-            ;;
     esac
 done
