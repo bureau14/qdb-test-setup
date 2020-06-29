@@ -78,6 +78,14 @@ do
 
 done
 
+
+if [[ -f "${LICENSE_FILE}" ]]
+then
+    echo "HAS LICENSE FILE"
+    ARGS_INSECURE="${ARGS_INSECURE} --license-file ${LICENSE_FILE}"
+    ARGS_SECURE="${ARGS_SECURE} --license-file ${LICENSE_FILE}"
+fi
+
 sleep_time=5
 timeout=60
 end_time=$(($(date +%s) + $timeout))

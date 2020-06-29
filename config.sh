@@ -32,6 +32,8 @@ CONFIG_INSECURE="qdbd_insecure.cfg"
 CONSOLE_LOG_INSECURE="qdbd_log_insecure.out.txt"
 CONSOLE_ERR_LOG_INSECURE="qdbd_log_insecure.err.txt"
 
+LICENSE_FILE="license.key"
+
 # Runtime configuration, parse arguments
 NODE_IDS=("0-0-0-1")
 
