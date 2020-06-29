@@ -20,7 +20,7 @@ if {$prog == ""} {
 set timeout -1
 spawn $prog
 match_max 100000
-expect -exact "Product type (1: transient, 2:rocksdb, 3:helium)? "
+expect -exact "Product type (1 = Transient, 2 = RocksDB)? "
 send -- "2\r"
 expect -exact "2\r
 Company name? "
@@ -48,11 +48,6 @@ Entered license information: \r
 
 # Serial key
 expect -re {[a-z0-9\-]+}
-
-expect -exact "\r
-            Max memory: 1.0 TiB\r
-    Attributed version: 2.2.2\r
-      Attribution date: "
 
 # Current date
 expect -re {[0-9\-: ]+}
