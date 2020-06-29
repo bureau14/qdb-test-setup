@@ -51,7 +51,6 @@ do
     THIS_URI_INSECURE="127.0.0.1:${PORT_INSECURE}"
     THIS_URI_SECURE="127.0.0.1:${PORT_SECURE}"
 
-    echo "Cluster insecure:"
     ARGS_INSECURE="--id ${NODE_ID} -a ${THIS_URI_INSECURE} -r ${THIS_DATA_DIR_INSECURE} -l ${THIS_LOG_DIR_INSECURE} --enable-performance-profiling"
     if [[ -f ${CONFIG_INSECURE} ]]; then
         ARGS_INSECURE="${ARGS_INSECURE} -c ${CONFIG_INSECURE}"
@@ -65,26 +64,27 @@ do
         ARGS_INSECURE="${ARGS_INSECURE} --peer ${BOOTSTRAP_URI_INSECURE}"
     fi
 
-    qdb_start "${ARGS_INSECURE}" ${CONSOLE_LOG_INSECURE} ${CONSOLE_ERR_LOG_INSECURE}
-
-    echo "Cluster secure:"
     ARGS_SECURE="--id ${NODE_ID} -a ${THIS_URI_SECURE} -r ${THIS_DATA_DIR_SECURE} -l ${THIS_LOG_DIR_SECURE} --security=true --cluster-private-file=${CLUSTER_PRIVATE_KEY} --user-list=${USER_LIST}"
     if [[ -f ${CONFIG_SECURE} ]]; then
         ARGS_SECURE="${ARGS_SECURE} -c ${CONFIG_SECURE}"
     fi
+
+
+    if [[ -f "${LICENSE_FILE}" ]]
+    then
+        ARGS_INSECURE="${ARGS_INSECURE} --license-file ${LICENSE_FILE}"
+        ARGS_SECURE="${ARGS_SECURE} --license-file ${LICENSE_FILE}"
+    fi
+
+    echo "Cluster insecure:"
+    qdb_start "${ARGS_INSECURE}" ${CONSOLE_LOG_INSECURE} ${CONSOLE_ERR_LOG_INSECURE}
+
+    echo "Cluster secure:"
     qdb_start "${ARGS_SECURE}" ${CONSOLE_LOG_SECURE} ${CONSOLE_ERR_LOG_SECURE}
 
     COUNT=$((COUNT + 1))
 
 done
-
-
-if [[ -f "${LICENSE_FILE}" ]]
-then
-    echo "HAS LICENSE FILE"
-    ARGS_INSECURE="${ARGS_INSECURE} --license-file ${LICENSE_FILE}"
-    ARGS_SECURE="${ARGS_SECURE} --license-file ${LICENSE_FILE}"
-fi
 
 sleep_time=5
 timeout=60
