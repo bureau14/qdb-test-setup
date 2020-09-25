@@ -37,23 +37,28 @@ case "$(uname)" in
     ;;
 esac
 
-FOUND=0
-if [[ ! -f ${QDBD} ]]; then
-    echo "Binary ${QDBD} not found."
-    FOUND=1
-fi
-if [[ ! -f ${QDB_USER_ADD} ]]; then
-    echo "Binary ${QDB_USER_ADD} not found."
-    FOUND=1
-fi
-if [[ ! -f ${QDB_CLUSTER_KEYGEN} ]]; then
-    echo "Binary ${QDB_CLUSTER_KEYGEN} not found."
-    FOUND=1
-fi
-
-if [[ ${FOUND} != 0 ]] ; then
-    echo "Binaries not found. Exiting..."
-    exit 1
-fi
-
 QDBD_FILENAME=${QDBD##*/}
+
+function check_binary {
+    local binary=$1;shift
+
+    if [[ ! -f ${binary} ]]; then
+        echo "Binary ${binary} not found."
+        return 1
+    fi
+    return 0
+}
+
+function check_binaries {
+    FOUND=0
+    set +e
+    FOUND=FOUND && check_binary "${QDBD}"
+    FOUND=FOUND && check_binary "${QDB_CLUSTER_KEYGEN}"
+    FOUND=FOUND && check_binary "${QDB_USER_ADD}"
+    set -e
+
+    if [[ ${FOUND} != 0 ]] ; then
+        echo "Binaries not found. Exiting..."
+        exit 1
+    fi
+}

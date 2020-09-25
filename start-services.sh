@@ -9,6 +9,7 @@ source "$SCRIPT_DIR/cleanup.sh"
 
 kill_instances
 full_cleanup
+check_binaries
 
 qdb_add_user ${USER_LIST} ${USER_PRIVATE_KEY} "test-user"
 qdb_gen_cluster_keys ${CLUSTER_PUBLIC_KEY} ${CLUSTER_PRIVATE_KEY}
