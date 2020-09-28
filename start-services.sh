@@ -2,7 +2,7 @@
 
 set -ex
 
-echo "QDB_DISABLE_SECURE_CLUSTER=${QDB_DISABLE_SECURE_CLUSTER:=0}"
+echo "QDB_ENABLE_SECURE_CLUSTER=${QDB_ENABLE_SECURE_CLUSTER:=1}"
 
 set -u
 
@@ -71,7 +71,7 @@ do
 
     qdb_start "${ARGS_INSECURE}" ${CONSOLE_LOG_INSECURE} ${CONSOLE_ERR_LOG_INSECURE}
 
-    if [ ${QDB_DISABLE_SECURE_CLUSTER} ] ; then
+    if [ ${QDB_ENABLE_SECURE_CLUSTER} -ne 0 ] ; then
         echo "Cluster secure:"
         ARGS_SECURE="--id ${NODE_ID} -a ${THIS_URI_SECURE} -r ${THIS_DATA_DIR_SECURE} -l ${THIS_LOG_DIR_SECURE} --enable-performance-profiling  --with-firehose \$qdb.firehose --security=true --cluster-private-file=${CLUSTER_PRIVATE_KEY} --user-list=${USER_LIST}"
         if [[ -f ${CONFIG_SECURE} ]]; then
@@ -90,10 +90,10 @@ end_time=$(($(date +%s) + $timeout))
 SUCCESS=0
 while [ $(date +%s) -le $end_time ]; do
     insecure_check=$(check_address $URI_INSECURE)
-    if [ ${QDB_DISABLE_SECURE_CLUSTER} ] ; then
-        secure_check="OK"
-    else
+    if [ ${QDB_ENABLE_SECURE_CLUSTER} -ne 0 ] ; then
         secure_check=$(check_address $URI_SECURE)
+    else
+        secure_check="OK"
     fi
 
     if [[ $insecure_check != "" && $secure_check != "" ]]; then
@@ -127,13 +127,13 @@ then
         # node URIs... perhaps even initialize all these things in config.sh?
         insecure_check=$(cluster_wait_for_stabilization \
                              --cluster qdb://${THIS_URI_INSECURE})
-        if ${QDB_DISABLE_SECURE_CLUSTER} ; then
-            secure_check="0"
-        else
+        if [ ${QDB_ENABLE_SECURE_CLUSTER} -ne 0 ] ; then
             secure_check=$(cluster_wait_for_stabilization \
                                --cluster qdb://${THIS_URI_SECURE} \
                                --cluster-public-key ${CLUSTER_PUBLIC_KEY} \
                                --user-security-file ${USER_PRIVATE_KEY})
+        else
+            secure_check="0"
         fi
 
         if [[ "${insecure_check}" == "0" && "${secure_check}" == "0" ]]
