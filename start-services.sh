@@ -1,6 +1,10 @@
 #!/bin/bash
 
-set -eux
+set -ex
+
+echo "QDB_DISABLE_SECURE_CLUSTER=${QDB_DISABLE_SECURE_CLUSTER:=0}"
+
+set -u
 
 SCRIPT_DIR="$(cd "$(dirname -- "${BASH_SOURCE[0]}")" >/dev/null && pwd)"
 source "$SCRIPT_DIR/config.sh" $@ # important: pass $@ as config.sh also parses our runtime args
@@ -13,7 +17,6 @@ check_binaries
 
 qdb_add_user ${USER_LIST} ${USER_PRIVATE_KEY} "test-user"
 qdb_gen_cluster_keys ${CLUSTER_PUBLIC_KEY} ${CLUSTER_PRIVATE_KEY}
-
 
 # This whole iteration is mostly unnecessary in case there's just a single-node
 # cluster (the common case), but sometimes we want to launch a cluster.
@@ -68,12 +71,14 @@ do
 
     qdb_start "${ARGS_INSECURE}" ${CONSOLE_LOG_INSECURE} ${CONSOLE_ERR_LOG_INSECURE}
 
-    echo "Cluster secure:"
-    ARGS_SECURE="--id ${NODE_ID} -a ${THIS_URI_SECURE} -r ${THIS_DATA_DIR_SECURE} -l ${THIS_LOG_DIR_SECURE} --enable-performance-profiling  --with-firehose \$qdb.firehose --security=true --cluster-private-file=${CLUSTER_PRIVATE_KEY} --user-list=${USER_LIST}"
-    if [[ -f ${CONFIG_SECURE} ]]; then
-        ARGS_SECURE="${ARGS_SECURE} -c ${CONFIG_SECURE}"
+    if [ ${QDB_DISABLE_SECURE_CLUSTER} ] ; then
+        echo "Cluster secure:"
+        ARGS_SECURE="--id ${NODE_ID} -a ${THIS_URI_SECURE} -r ${THIS_DATA_DIR_SECURE} -l ${THIS_LOG_DIR_SECURE} --enable-performance-profiling  --with-firehose \$qdb.firehose --security=true --cluster-private-file=${CLUSTER_PRIVATE_KEY} --user-list=${USER_LIST}"
+        if [[ -f ${CONFIG_SECURE} ]]; then
+            ARGS_SECURE="${ARGS_SECURE} -c ${CONFIG_SECURE}"
+        fi
+        qdb_start "${ARGS_SECURE}" ${CONSOLE_LOG_SECURE} ${CONSOLE_ERR_LOG_SECURE}
     fi
-    qdb_start "${ARGS_SECURE}" ${CONSOLE_LOG_SECURE} ${CONSOLE_ERR_LOG_SECURE}
 
     COUNT=$((COUNT + 1))
 
@@ -85,7 +90,11 @@ end_time=$(($(date +%s) + $timeout))
 SUCCESS=0
 while [ $(date +%s) -le $end_time ]; do
     insecure_check=$(check_address $URI_INSECURE)
-    secure_check=$(check_address $URI_SECURE)
+    if [ ${QDB_DISABLE_SECURE_CLUSTER} ] ; then
+        secure_check="OK"
+    else
+        secure_check=$(check_address $URI_SECURE)
+    fi
 
     if [[ $insecure_check != "" && $secure_check != "" ]]; then
         echo "qdbd secure and insecure were started properly."
@@ -118,10 +127,14 @@ then
         # node URIs... perhaps even initialize all these things in config.sh?
         insecure_check=$(cluster_wait_for_stabilization \
                              --cluster qdb://${THIS_URI_INSECURE})
-        secure_check=$(cluster_wait_for_stabilization \
-                           --cluster qdb://${THIS_URI_SECURE} \
-                           --cluster-public-key ${CLUSTER_PUBLIC_KEY} \
-                           --user-security-file ${USER_PRIVATE_KEY})
+        if ${QDB_DISABLE_SECURE_CLUSTER} ; then
+            secure_check="0"
+        else
+            secure_check=$(cluster_wait_for_stabilization \
+                               --cluster qdb://${THIS_URI_SECURE} \
+                               --cluster-public-key ${CLUSTER_PUBLIC_KEY} \
+                               --user-security-file ${USER_PRIVATE_KEY})
+        fi
 
         if [[ "${insecure_check}" == "0" && "${secure_check}" == "0" ]]
         then
@@ -133,7 +146,6 @@ then
         echo "Not all clusters are stable, sleeping for ${sleep_time}s before retry.."
         sleep $sleep_time
     done
-
 
     if [[ "${SUCCESS}" == "0" ]]
     then
