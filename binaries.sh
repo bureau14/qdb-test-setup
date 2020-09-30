@@ -19,23 +19,29 @@ QDB_CLUSTER_KEYGEN="${QDB_DIR}/qdb_cluster_keygen"
 
 set +u
 
+BINARIES=(QDBD QDBSH QDB_USER_ADD QDB_CLUSTER_KEYGEN)
+
 if [[ ${CMAKE_BUILD_TYPE} == "Debug" ]]; then
-    QDBD="${QDBD}d"
-    QDB_USER_ADD="${QDB_USER_ADD}d"
-    QDB_CLUSTER_KEYGEN="${QDB_CLUSTER_KEYGEN}d"
+    for binary in ${BINARIES[@]} ; do
+        declare "${binary}"="${!binary}d"
+    done
 fi
 
 set -u
 
 case "$(uname)" in
     MINGW*)
-        QDBD=${QDBD}.exe
-        QDB_USER_ADD=${QDB_USER_ADD}.exe
-        QDB_CLUSTER_KEYGEN=${QDB_CLUSTER_KEYGEN}.exe
+        for binary in ${BINARIES[@]} ; do
+            declare "${binary}"="${!binary}.exe"
+        done
     ;;
     *)
     ;;
 esac
+
+for binary in ${BINARIES[@]} ; do
+    echo "${binary}"="${!binary}"
+done
 
 QDBD_FILENAME=${QDBD##*/}
 
@@ -51,16 +57,13 @@ function check_binary {
 
 function check_binaries {
     FOUND=0
+
     set +e
-    if ! check_binary "${QDBD}" ; then
-        FOUND=1
-    fi
-    if ! check_binary "${QDB_CLUSTER_KEYGEN}" ; then
-        FOUND=1
-    fi
-    if ! check_binary "${QDB_USER_ADD}" ; then
-        FOUND=1
-    fi
+    for binary in ${BINARIES[@]} ; do
+        if ! check_binary "${!binary}" ; then
+            FOUND=1
+        fi
+    done
     set -e
 
     if [[ ${FOUND} != 0 ]] ; then
