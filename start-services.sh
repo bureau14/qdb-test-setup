@@ -13,6 +13,7 @@ full_cleanup
 qdb_add_user ${USER_LIST} ${USER_PRIVATE_KEY} "test-user"
 qdb_gen_cluster_keys ${CLUSTER_PUBLIC_KEY} ${CLUSTER_PRIVATE_KEY}
 
+COMMON_ARGS="--license-key='CHdTHjWzL05mjQGDAchxBNoKx9/Vn1GXyzkAp2bJqc5p+l98f4cOycdj46WEEpUhl93kQhfiwg+/LJ2fOOhQIkV+oAxC6ohn6i4iB+ZibfGo+uB1K2ggVAl5QsKLfw3q0zHtMndfRlxf+UCHj+gmzoxAHv++9KoToFQcA5XPF5n8/o7Pc7XwbN5OBhfkee10'"
 
 # This whole iteration is mostly unnecessary in case there's just a single-node
 # cluster (the common case), but sometimes we want to launch a cluster.
@@ -51,10 +52,12 @@ do
     THIS_URI_INSECURE="127.0.0.1:${PORT_INSECURE}"
     THIS_URI_SECURE="127.0.0.1:${PORT_SECURE}"
 
+    COMMON_NODE_ARGS="${COMMON_ARGS} --id ${NODE_ID}"
+
     echo "Cluster insecure:"
-    ARGS_INSECURE="--id ${NODE_ID} -a ${THIS_URI_INSECURE} -r ${THIS_DATA_DIR_INSECURE} -l ${THIS_LOG_DIR_INSECURE} --enable-performance-profiling"
+    ARGS_INSECURE="${COMMON_NODE_ARGS}  -a ${THIS_URI_INSECURE} -r ${THIS_DATA_DIR_INSECURE} -l ${THIS_LOG_DIR_INSECURE} --enable-performance-profiling"
     if [[ -f ${CONFIG_INSECURE} ]]; then
-        ARGS_INSECURE="${ARGS_INSECURE} -c ${CONFIG_INSECURE}"
+        ARGS_INSECURE+=" -c ${CONFIG_INSECURE}"
     fi
 
     if [[ "$COUNT" != "0" ]]
@@ -62,20 +65,19 @@ do
         # Not the first node, which means we need to bootstrap using the previous node
         BOOTSTRAP_PORT_INSECURE=$((2836 + (($COUNT - 1) * 4)))
         BOOTSTRAP_URI_INSECURE="127.0.0.1:${BOOTSTRAP_PORT_INSECURE}"
-        ARGS_INSECURE="${ARGS_INSECURE} --peer ${BOOTSTRAP_URI_INSECURE}"
+        ARGS_INSECURE+=" --peer ${BOOTSTRAP_URI_INSECURE}"
     fi
 
     qdb_start "${ARGS_INSECURE}" ${CONSOLE_LOG_INSECURE} ${CONSOLE_ERR_LOG_INSECURE}
 
     echo "Cluster secure:"
-    ARGS_SECURE="--id ${NODE_ID} -a ${THIS_URI_SECURE} -r ${THIS_DATA_DIR_SECURE} -l ${THIS_LOG_DIR_SECURE} --security=true --cluster-private-file=${CLUSTER_PRIVATE_KEY} --user-list=${USER_LIST}"
+    ARGS_SECURE="${COMMON_NODE_ARGS} -a ${THIS_URI_SECURE} -r ${THIS_DATA_DIR_SECURE} -l ${THIS_LOG_DIR_SECURE} --security=true --cluster-private-file=${CLUSTER_PRIVATE_KEY} --user-list=${USER_LIST}"
     if [[ -f ${CONFIG_SECURE} ]]; then
-        ARGS_SECURE="${ARGS_SECURE} -c ${CONFIG_SECURE}"
+        ARGS_SECURE+=" -c ${CONFIG_SECURE}"
     fi
     qdb_start "${ARGS_SECURE}" ${CONSOLE_LOG_SECURE} ${CONSOLE_ERR_LOG_SECURE}
 
     COUNT=$((COUNT + 1))
-
 done
 
 sleep_time=5
