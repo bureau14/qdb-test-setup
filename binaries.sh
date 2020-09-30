@@ -29,15 +29,11 @@ fi
 
 set -u
 
-case "$(uname)" in
-    MINGW*)
-        for binary in ${BINARIES[@]} ; do
-            declare "${binary}"="${!binary}.exe"
-        done
-    ;;
-    *)
-    ;;
-esac
+if [[ "$(uname)" == MINGW* ]] ; then
+    for binary in ${BINARIES[@]} ; do
+        declare "${binary}"="${!binary}.exe"
+    done
+fi
 
 for binary in ${BINARIES[@]} ; do
     echo "${binary}"="${!binary}"
