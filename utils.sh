@@ -40,7 +40,8 @@ function count_instances {
 function check_address {
     local address=$1;shift
     case "$(uname)" in
-        MINGW*)
+        # FIXME(Marek): How about `CYGWIN*`?
+        MINGW*|MSYS*)
             local pid=$(NETSTAT.EXE -an -o | grep $address | grep "LISTENING" | tr -s [:space:] | cut -d' ' -f6)
             if [[ $pid != "" ]]; then
                 ps aux | grep $pid | grep qdbd
@@ -80,7 +81,7 @@ function print_instance_log {
 function kill_instances {
     echo "Killing ${QDBD_FILENAME} instances..."
     case "$(uname)" in
-        MINGW*)
+        MINGW*|MSYS_NT*)
             # we need double slashes for the flag to be recognized
             # a simple slash would cause this error: Invalid argument/option - 'C:/Program Files/Git/IM'.
             #
