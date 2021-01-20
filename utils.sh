@@ -81,7 +81,7 @@ function print_instance_log {
 function kill_instances {
     echo "Killing ${QDBD_FILENAME} instances..."
     case "$(uname)" in
-        MINGW*|MSYS_NT*)
+        MINGW*|MSYS*)
             # we need double slashes for the flag to be recognized
             # a simple slash would cause this error: Invalid argument/option - 'C:/Program Files/Git/IM'.
             #
