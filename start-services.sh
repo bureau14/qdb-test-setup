@@ -56,7 +56,7 @@ do
     THIS_URI_SECURE="127.0.0.1:${PORT_SECURE}"
 
     echo "Cluster insecure:"
-    ARGS_INSECURE="--id ${NODE_ID} -a ${THIS_URI_INSECURE} -r ${THIS_DATA_DIR_INSECURE} -l ${THIS_LOG_DIR_INSECURE} --enable-performance-profiling --with-firehose \$qdb.firehose"
+    ARGS_INSECURE="--id ${NODE_ID} -a ${THIS_URI_INSECURE} -r ${THIS_DATA_DIR_INSECURE} -l ${THIS_LOG_DIR_INSECURE} --enable-performance-profiling --total-sessions 512 --with-firehose \$qdb.firehose"
     if [[ -f ${CONFIG_INSECURE} ]]; then
         ARGS_INSECURE="${ARGS_INSECURE} -c ${CONFIG_INSECURE}"
     fi
@@ -73,7 +73,8 @@ do
 
     if [ ${QDB_ENABLE_SECURE_CLUSTER} -ne 0 ] ; then
         echo "Cluster secure:"
-        ARGS_SECURE="--id ${NODE_ID} -a ${THIS_URI_SECURE} -r ${THIS_DATA_DIR_SECURE} -l ${THIS_LOG_DIR_SECURE} --enable-performance-profiling  --with-firehose \$qdb.firehose --security=true --cluster-private-file=${CLUSTER_PRIVATE_KEY} --user-list=${USER_LIST}"
+        ARGS_SECURE="--id ${NODE_ID} -a ${THIS_URI_SECURE} -r ${THIS_DATA_DIR_SECURE} -l ${THIS_LOG_DIR_SECURE} --enable-performance-profiling --total-sessions 512  --with-firehose \$qdb.firehose --security=true --cluster-private-file=${CLUSTER_PRIVATE_KEY} --user-list=${USER_LIST}"
+
         if [[ -f ${CONFIG_SECURE} ]]; then
             ARGS_SECURE="${ARGS_SECURE} -c ${CONFIG_SECURE}"
         fi
