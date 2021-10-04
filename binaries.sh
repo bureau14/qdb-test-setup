@@ -19,7 +19,10 @@ QDB_CLUSTER_KEYGEN="${QDB_DIR}/qdb_cluster_keygen"
 
 set +u
 
-BINARIES=(QDBD QDBSH QDB_USER_ADD QDB_CLUSTER_KEYGEN)
+BINARIES=(QDBD QDBSH)
+if [ ${QDB_ENABLE_SECURE_CLUSTER} -ne 0 ] ; then
+    BINARIES+=(QDB_USER_ADD QDB_CLUSTER_KEYGEN)
+fi
 
 if [[ ${CMAKE_BUILD_TYPE} == "Debug" ]]; then
     for binary in ${BINARIES[@]} ; do
