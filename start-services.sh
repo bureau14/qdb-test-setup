@@ -15,8 +15,10 @@ kill_instances
 full_cleanup
 check_binaries
 
-qdb_add_user ${USER_LIST} ${USER_PRIVATE_KEY} "test-user"
-qdb_gen_cluster_keys ${CLUSTER_PUBLIC_KEY} ${CLUSTER_PRIVATE_KEY}
+if [ ${QDB_ENABLE_SECURE_CLUSTER} -ne 0 ] ; then
+    qdb_add_user ${USER_LIST} ${USER_PRIVATE_KEY} "test-user"
+    qdb_gen_cluster_keys ${CLUSTER_PUBLIC_KEY} ${CLUSTER_PRIVATE_KEY}
+fi
 
 # This whole iteration is mostly unnecessary in case there's just a single-node
 # cluster (the common case), but sometimes we want to launch a cluster.
