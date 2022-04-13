@@ -90,7 +90,7 @@ do
 
 done
 
-sleep_time=5
+sleep_time=.1
 timeout=60
 end_time=$(($(date +%s) + $timeout))
 SUCCESS=0
@@ -123,7 +123,7 @@ then
     # Clustered setup, wait for stabilization
     end_time=$(($(date +%s) + $timeout))
     timeout=300 # stabilization can take a long time!
-    sleep_time=5
+    sleep_time=1
     while [ $(date +%s) -le $end_time ]
     do
         # HACKS(leon): THIS_URI_INSECURE and THIS_URI_SECURE are extremely hacky

@@ -92,7 +92,7 @@ function kill_instances {
             pkill -SIGKILL -f ${QDBD_FILENAME} || true
         ;;
     esac
-    sleep 5
+    sleep .1
     if [[ $(($(count_instances))) != 0 ]]; then
         echo "Could not kill all instances, aborting..."
         exit 1
