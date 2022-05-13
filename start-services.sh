@@ -120,6 +120,21 @@ done
 
 if [[ "${SUCCESS}" == "0" ]] ; then
     echo "Could not start all instances, aborting..."
+
+    if [ ${QDB_ENABLE_INSECURE_CLUSTER} -ne 0 ] ; then
+        echo "Insecure out:"
+        cat ${CONSOLE_LOG_INSECURE}
+        echo "Insecure err:"
+        cat ${CONSOLE_ERR_LOG_INSECURE}
+    fi
+
+    if [ ${QDB_ENABLE_SECURE_CLUSTER} -ne 0 ] ; then
+        echo "Secure out:"
+        cat ${CONSOLE_LOG_SECURE}
+        echo "Secure err:"
+        cat ${CONSOLE_ERR_LOG_SECURE}
+    fi
+
     exit 1
 fi
 
