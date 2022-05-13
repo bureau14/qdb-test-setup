@@ -20,7 +20,7 @@ QDB_CLUSTER_KEYGEN="${QDB_DIR}/qdb_cluster_keygen"
 set +u
 
 BINARIES=(QDBD QDBSH)
-if [ ${QDB_ENABLE_SECURE_CLUSTER} -ne 0 ] ; then
+if [ "${QDB_ENABLE_SECURE_CLUSTER}" != "0" ] ; then
     BINARIES+=(QDB_USER_ADD QDB_CLUSTER_KEYGEN)
 fi
 

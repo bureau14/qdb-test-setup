@@ -16,7 +16,7 @@ kill_instances
 full_cleanup
 check_binaries
 
-if [ ${QDB_ENABLE_SECURE_CLUSTER} -ne 0 ] ; then
+if [ "${QDB_ENABLE_SECURE_CLUSTER}" != "0" ] ; then
     qdb_add_user ${USER_LIST} ${USER_PRIVATE_KEY} "test-user"
     qdb_gen_cluster_keys ${CLUSTER_PUBLIC_KEY} ${CLUSTER_PRIVATE_KEY}
 fi
@@ -62,7 +62,7 @@ do
     THIS_URI_INSECURE_PUBLISHER="127.0.0.1:${PORT_INSECURE_PUBLISHER}"
     THIS_URI_SECURE_PUBLISHER="127.0.0.1:${PORT_SECURE_PUBLISHER}"
 
-    if [ ${QDB_ENABLE_INSECURE_CLUSTER} -ne 0 ] ; then
+    if [ "${QDB_ENABLE_INSECURE_CLUSTER}" != "0" ] ; then
         echo "Cluster insecure:"
         ARGS_INSECURE="--id ${NODE_ID} -a ${THIS_URI_INSECURE} -r ${THIS_DATA_DIR_INSECURE} -l ${THIS_LOG_DIR_INSECURE} --enable-performance-profiling --total-sessions 512 --with-firehose \$qdb.firehose --publish-firehose=true --firehose-endpoint ${THIS_URI_INSECURE_PUBLISHER}"
         if [[ -f ${CONFIG_INSECURE} ]]; then
@@ -79,7 +79,7 @@ do
         qdb_start "${ARGS_INSECURE}" ${CONSOLE_LOG_INSECURE} ${CONSOLE_ERR_LOG_INSECURE}
     fi
 
-    if [ ${QDB_ENABLE_SECURE_CLUSTER} -ne 0 ] ; then
+    if [ "${QDB_ENABLE_SECURE_CLUSTER}" != "0" ] ; then
         echo "Cluster secure:"
         ARGS_SECURE="--id ${NODE_ID} -a ${THIS_URI_SECURE} -r ${THIS_DATA_DIR_SECURE} -l ${THIS_LOG_DIR_SECURE} --enable-performance-profiling --total-sessions 512 --with-firehose \$qdb.firehose --security=true --cluster-private-file=${CLUSTER_PRIVATE_KEY} --user-list=${USER_LIST} --publish-firehose=true --firehose-endpoint ${THIS_URI_SECURE_PUBLISHER}"
         if [[ -f ${CONFIG_SECURE} ]]; then
@@ -97,13 +97,13 @@ timeout=60
 end_time=$(($(date +%s) + $timeout))
 SUCCESS=1
 while [ $(date +%s) -le $end_time ]; do
-    if [ ${QDB_ENABLE_INSECURE_CLUSTER} -ne 0 ] ; then
+    if [ "${QDB_ENABLE_INSECURE_CLUSTER}" != "0" ] ; then
         insecure_check=$(check_address $URI_INSECURE)
     else
         insecure_check="OK skipped"
     fi
 
-    if [ ${QDB_ENABLE_SECURE_CLUSTER} -ne 0 ] ; then
+    if [ "${QDB_ENABLE_SECURE_CLUSTER}" != "0" ] ; then
         secure_check=$(check_address $URI_SECURE)
     else
         secure_check="OK skipped"
@@ -121,14 +121,14 @@ done
 if [[ "${SUCCESS}" != "0" ]] ; then
     echo "Could not start all instances, aborting..."
 
-    if [ ${QDB_ENABLE_INSECURE_CLUSTER} -ne 0 ] ; then
+    if [ "${QDB_ENABLE_INSECURE_CLUSTER}" != "0" ] ; then
         echo "Insecure out:"
         cat ${CONSOLE_LOG_INSECURE}
         echo "Insecure err:"
         cat ${CONSOLE_ERR_LOG_INSECURE}
     fi
 
-    if [ ${QDB_ENABLE_SECURE_CLUSTER} -ne 0 ] ; then
+    if [ "${QDB_ENABLE_SECURE_CLUSTER}" != "0" ] ; then
         echo "Secure out:"
         cat ${CONSOLE_LOG_SECURE}
         echo "Secure err:"
@@ -151,14 +151,14 @@ if [[ ${#NODE_IDS[@]} -gt 1 ]] ; then
         #
         # A better way to approach this is to build some utility functions for resolving
         # node URIs... perhaps even initialize all these things in config.sh?
-        if [ ${QDB_ENABLE_INSECURE_CLUSTER} -ne 0 ] ; then
+        if [ "${QDB_ENABLE_INSECURE_CLUSTER}" != "0" ] ; then
             insecure_check=$(cluster_wait_for_stabilization \
                                 --cluster qdb://${THIS_URI_INSECURE})
         else
             insecure_check="0"
         fi
 
-        if [ ${QDB_ENABLE_SECURE_CLUSTER} -ne 0 ] ; then
+        if [ "${QDB_ENABLE_SECURE_CLUSTER}" != "0" ] ; then
             secure_check=$(cluster_wait_for_stabilization \
                                --cluster qdb://${THIS_URI_SECURE} \
                                --cluster-public-key ${CLUSTER_PUBLIC_KEY} \
