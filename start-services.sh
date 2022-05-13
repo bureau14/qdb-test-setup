@@ -95,30 +95,30 @@ done
 sleep_time=.1
 timeout=60
 end_time=$(($(date +%s) + $timeout))
-SUCCESS=0
+SUCCESS=1
 while [ $(date +%s) -le $end_time ]; do
     if [ ${QDB_ENABLE_INSECURE_CLUSTER} -ne 0 ] ; then
         insecure_check=$(check_address $URI_INSECURE)
     else
-        insecure_check="OK"
+        insecure_check="OK skipped"
     fi
 
     if [ ${QDB_ENABLE_SECURE_CLUSTER} -ne 0 ] ; then
         secure_check=$(check_address $URI_SECURE)
     else
-        secure_check="OK"
+        secure_check="OK skipped"
     fi
 
-    if [[ $insecure_check != "" && $secure_check != "" ]]; then
+    if [[ "$insecure_check" != "" && "$secure_check" != "" ]]; then
         echo "qdbd secure and insecure were started properly."
-        SUCCESS=1
+        SUCCESS=0
         break
     fi
 
     sleep $sleep_time
 done
 
-if [[ "${SUCCESS}" == "0" ]] ; then
+if [[ "${SUCCESS}" != "0" ]] ; then
     echo "Could not start all instances, aborting..."
 
     if [ ${QDB_ENABLE_INSECURE_CLUSTER} -ne 0 ] ; then
@@ -139,7 +139,7 @@ if [[ "${SUCCESS}" == "0" ]] ; then
 fi
 
 if [[ ${#NODE_IDS[@]} -gt 1 ]] ; then
-    SUCCESS=0
+    SUCCESS=1
     # Clustered setup, wait for stabilization
     end_time=$(($(date +%s) + $timeout))
     timeout=300 # stabilization can take a long time!
@@ -169,7 +169,7 @@ if [[ ${#NODE_IDS[@]} -gt 1 ]] ; then
 
         if [[ "${insecure_check}" == "0" && "${secure_check}" == "0" ]] ; then
             echo "both clusters stable!"
-            SUCCESS=1
+            SUCCESS=0
             break
         fi
 
@@ -177,7 +177,7 @@ if [[ ${#NODE_IDS[@]} -gt 1 ]] ; then
         sleep $sleep_time
     done
 
-    if [[ "${SUCCESS}" == "0" ]] ; then
+    if [[ "${SUCCESS}" != "0" ]] ; then
         echo "Cluster did not become stable, abort!"
         exit 1
     fi
