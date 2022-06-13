@@ -142,8 +142,8 @@ fi
 if [[ ${#NODE_IDS[@]} -gt 1 ]] ; then
     SUCCESS=1
     # Clustered setup, wait for stabilization
-    end_time=$(($(date +%s) + $timeout))
     timeout=300 # stabilization can take a long time!
+    end_time=$(($(date +%s) + $timeout))
     sleep_time=1
     while [ $(date +%s) -le $end_time ]
     do
