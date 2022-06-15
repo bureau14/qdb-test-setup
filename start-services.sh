@@ -94,6 +94,9 @@ do
 done
 
 sleep_time=.1
+if [[ ${CMAKE_BUILD_TYPE} == "Debug" ]]; then
+    sleep_time=3
+fi
 timeout=60
 end_time=$(($(date +%s) + $timeout))
 SUCCESS=1
