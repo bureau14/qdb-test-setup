@@ -24,11 +24,19 @@ if [ "${QDB_ENABLE_SECURE_CLUSTER}" != "0" ] ; then
     BINARIES+=(QDB_USER_ADD QDB_CLUSTER_KEYGEN)
 fi
 
-if [[ ${CMAKE_BUILD_TYPE} == "Debug" ]]; then
-    for binary in ${BINARIES[@]} ; do
+for binary in ${BINARIES[@]}
+do
+    if ! [[ -x "${!binary}" ]]
+    then
+        echo "Attempting to use debug build for binary ${!binary}"
         declare "${binary}"="${!binary}d"
-    done
-fi
+    fi
+
+    if ! [[ -x "${!binary}" ]]
+    then
+        echo "Neither release nor debug build found for binary: ${!binary}"
+    fi
+done
 
 set -u
 
