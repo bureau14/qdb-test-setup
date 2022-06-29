@@ -21,6 +21,9 @@ if [ "${QDB_ENABLE_SECURE_CLUSTER}" != "0" ] ; then
     qdb_gen_cluster_keys ${CLUSTER_PUBLIC_KEY} ${CLUSTER_PRIVATE_KEY}
 fi
 
+INSECURE_IPS=()
+SECURE_IPS=()
+
 # This whole iteration is mostly unnecessary in case there's just a single-node
 # cluster (the common case), but sometimes we want to launch a cluster.
 #
@@ -61,6 +64,9 @@ do
     THIS_URI_SECURE="127.0.0.1:${PORT_SECURE}"
     THIS_URI_INSECURE_PUBLISHER="127.0.0.1:${PORT_INSECURE_PUBLISHER}"
     THIS_URI_SECURE_PUBLISHER="127.0.0.1:${PORT_SECURE_PUBLISHER}"
+
+    INSECURE_IPS+=(${THIS_URI_INSECURE})
+    SECURE_IPS+=(${THIS_URI_SECURE})
 
     ARGS_COMMON="--license-file='${LICENSE_FILE}' --id ${NODE_ID} --enable-performance-profiling --total-sessions 512 --with-firehose \$qdb.firehose --publish-firehose=true "
     if [ "${QDB_ENABLE_INSECURE_CLUSTER}" != "0" ] ; then
@@ -142,6 +148,15 @@ if [[ "${SUCCESS}" != "0" ]] ; then
     exit 1
 fi
 
+join_with_char() {
+  local IFS="$1"
+  shift
+  echo "$*"
+}
+
+INSECURE_URI=$(echo -n 'qdb://'; join_with_char , "${INSECURE_IPS[@]}")
+SECURE_URI=$(echo -n 'qdb://'; join_with_char , "${SECURE_IPS[@]}")
+
 if [[ ${#NODE_IDS[@]} -gt 1 ]] ; then
     SUCCESS=1
     # Clustered setup, wait for stabilization
@@ -157,14 +172,14 @@ if [[ ${#NODE_IDS[@]} -gt 1 ]] ; then
         # node URIs... perhaps even initialize all these things in config.sh?
         if [ "${QDB_ENABLE_INSECURE_CLUSTER}" != "0" ] ; then
             insecure_check=$(cluster_wait_for_stabilization \
-                                --cluster qdb://${THIS_URI_INSECURE})
+                                --cluster ${INSECURE_URI})
         else
             insecure_check="0"
         fi
 
         if [ "${QDB_ENABLE_SECURE_CLUSTER}" != "0" ] ; then
             secure_check=$(cluster_wait_for_stabilization \
-                               --cluster qdb://${THIS_URI_SECURE} \
+                               --cluster ${SECURE_URI} \
                                --cluster-public-key ${CLUSTER_PUBLIC_KEY} \
                                --user-security-file ${USER_PRIVATE_KEY})
         else
