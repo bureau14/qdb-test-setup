@@ -16,7 +16,7 @@ kill_instances
 full_cleanup
 check_binaries
 
-if [ "${QDB_ENABLE_SECURE_CLUSTER}" != "0" ] ; then
+if [ "${QDB_ENABLE_SECURE_CLUSTER}" != "0" ]; then
     qdb_add_user ${USER_LIST} ${USER_PRIVATE_KEY} "test-user"
     qdb_gen_cluster_keys ${CLUSTER_PUBLIC_KEY} ${CLUSTER_PRIVATE_KEY}
 fi
@@ -41,8 +41,7 @@ SECURE_IPS=()
 # We are all providing the 'base' configuration qdbd.conf (if provided), and override
 # the address etc using the `-a` `--id` flags.
 COUNT=0
-for NODE_ID in "${NODE_IDS[@]}"
-do
+for NODE_ID in "${NODE_IDS[@]}"; do
     # Magic number 4, as we need 4 ports per secure/insecure "pair"
     PORT_INSECURE=$((2836 + ($COUNT * 4)))
     PORT_SECURE=$((2838 + ($COUNT * 4)))
@@ -69,14 +68,14 @@ do
     SECURE_IPS+=(${THIS_URI_SECURE})
 
     ARGS_COMMON="--license-file='${LICENSE_FILE}' --id ${NODE_ID} --enable-performance-profiling --total-sessions 512 --with-firehose \$qdb.firehose --publish-firehose=true "
-    if [ "${QDB_ENABLE_INSECURE_CLUSTER}" != "0" ] ; then
+    if [ "${QDB_ENABLE_INSECURE_CLUSTER}" != "0" ]; then
         echo "Cluster insecure:"
         ARGS_INSECURE="${ARGS_COMMON} -a ${THIS_URI_INSECURE} -r ${THIS_DATA_DIR_INSECURE} -l ${THIS_LOG_DIR_INSECURE} --firehose-endpoint ${THIS_URI_INSECURE_PUBLISHER}"
         if [[ -f ${CONFIG_INSECURE} ]]; then
             ARGS_INSECURE="${ARGS_INSECURE} -c ${CONFIG_INSECURE}"
         fi
 
-        if [[ "$COUNT" != "0" ]] ; then
+        if [[ "$COUNT" != "0" ]]; then
             # Not the first node, which means we need to bootstrap using the previous node
             BOOTSTRAP_PORT_INSECURE=$((2836 + (($COUNT - 1) * 4)))
             BOOTSTRAP_URI_INSECURE="127.0.0.1:${BOOTSTRAP_PORT_INSECURE}"
@@ -86,7 +85,7 @@ do
         qdb_start "${ARGS_INSECURE}" ${CONSOLE_LOG_INSECURE} ${CONSOLE_ERR_LOG_INSECURE}
     fi
 
-    if [ "${QDB_ENABLE_SECURE_CLUSTER}" != "0" ] ; then
+    if [ "${QDB_ENABLE_SECURE_CLUSTER}" != "0" ]; then
         echo "Cluster secure:"
         ARGS_SECURE="${ARGS_COMMON} -a ${THIS_URI_SECURE} -r ${THIS_DATA_DIR_SECURE} -l ${THIS_LOG_DIR_SECURE} --firehose-endpoint ${THIS_URI_SECURE_PUBLISHER} --security=true --cluster-private-file=${CLUSTER_PRIVATE_KEY} --user-list=${USER_LIST}"
         if [[ -f ${CONFIG_SECURE} ]]; then
@@ -96,7 +95,6 @@ do
     fi
 
     COUNT=$((COUNT + 1))
-
 done
 
 sleep_time=.1
@@ -107,13 +105,13 @@ timeout=60
 end_time=$(($(date +%s) + $timeout))
 SUCCESS=1
 while [ $(date +%s) -le $end_time ]; do
-    if [ "${QDB_ENABLE_INSECURE_CLUSTER}" != "0" ] ; then
+    if [ "${QDB_ENABLE_INSECURE_CLUSTER}" != "0" ]; then
         insecure_check=$(check_address $URI_INSECURE)
     else
         insecure_check="OK skipped"
     fi
 
-    if [ "${QDB_ENABLE_SECURE_CLUSTER}" != "0" ] ; then
+    if [ "${QDB_ENABLE_SECURE_CLUSTER}" != "0" ]; then
         secure_check=$(check_address $URI_SECURE)
     else
         secure_check="OK skipped"
@@ -128,17 +126,17 @@ while [ $(date +%s) -le $end_time ]; do
     sleep $sleep_time
 done
 
-if [[ "${SUCCESS}" != "0" ]] ; then
+if [[ "${SUCCESS}" != "0" ]]; then
     echo "Could not start all instances, aborting..."
 
-    if [ "${QDB_ENABLE_INSECURE_CLUSTER}" != "0" ] ; then
+    if [ "${QDB_ENABLE_INSECURE_CLUSTER}" != "0" ]; then
         echo "Insecure out:"
         cat ${CONSOLE_LOG_INSECURE}
         echo "Insecure err:"
         cat ${CONSOLE_ERR_LOG_INSECURE}
     fi
 
-    if [ "${QDB_ENABLE_SECURE_CLUSTER}" != "0" ] ; then
+    if [ "${QDB_ENABLE_SECURE_CLUSTER}" != "0" ]; then
         echo "Secure out:"
         cat ${CONSOLE_LOG_SECURE}
         echo "Secure err:"
@@ -148,45 +146,53 @@ if [[ "${SUCCESS}" != "0" ]] ; then
     exit 1
 fi
 
-join_with_char() {
-  local IFS="$1"
-  shift
-  echo "$*"
+function join_with_char() {
+    local IFS="$1"; shift
+    echo "$*"
 }
 
-INSECURE_URI=$(echo -n 'qdb://'; join_with_char , "${INSECURE_IPS[@]}")
-SECURE_URI=$(echo -n 'qdb://'; join_with_char , "${SECURE_IPS[@]}")
+INSECURE_URI=$(
+    echo -n 'qdb://'
+    join_with_char , "${INSECURE_IPS[@]}"
+)
+SECURE_URI=$(
+    echo -n 'qdb://'
+    join_with_char , "${SECURE_IPS[@]}"
+)
 
-if [[ ${#NODE_IDS[@]} -gt 1 ]] ; then
+if [[ ${#NODE_IDS[@]} -gt 1 ]]; then
     SUCCESS=1
     # Clustered setup, wait for stabilization
     timeout=300 # stabilization can take a long time!
     end_time=$(($(date +%s) + $timeout))
     sleep_time=1
-    while [ $(date +%s) -le $end_time ]
-    do
+    while [ $(date +%s) -le $end_time ]; do
         # HACKS(leon): THIS_URI_INSECURE and THIS_URI_SECURE are extremely hacky
         # as they are the last set URIs for the cluster's node in the loop above..
         #
         # A better way to approach this is to build some utility functions for resolving
         # node URIs... perhaps even initialize all these things in config.sh?
-        if [ "${QDB_ENABLE_INSECURE_CLUSTER}" != "0" ] ; then
-            insecure_check=$(cluster_wait_for_stabilization \
-                                --cluster ${INSECURE_URI})
+        if [ "${QDB_ENABLE_INSECURE_CLUSTER}" != "0" ]; then
+            insecure_check=$(
+                cluster_wait_for_stabilization \
+                --cluster ${INSECURE_URI}
+            )
         else
             insecure_check="0"
         fi
 
-        if [ "${QDB_ENABLE_SECURE_CLUSTER}" != "0" ] ; then
-            secure_check=$(cluster_wait_for_stabilization \
-                               --cluster ${SECURE_URI} \
-                               --cluster-public-key ${CLUSTER_PUBLIC_KEY} \
-                               --user-security-file ${USER_PRIVATE_KEY})
+        if [ "${QDB_ENABLE_SECURE_CLUSTER}" != "0" ]; then
+            secure_check=$(
+                cluster_wait_for_stabilization \
+                --cluster ${SECURE_URI} \
+                --cluster-public-key ${CLUSTER_PUBLIC_KEY} \
+                --user-security-file ${USER_PRIVATE_KEY}
+            )
         else
             secure_check="0"
         fi
 
-        if [[ "${insecure_check}" == "0" && "${secure_check}" == "0" ]] ; then
+        if [[ "${insecure_check}" == "0" && "${secure_check}" == "0" ]]; then
             echo "both clusters stable!"
             SUCCESS=0
             break
@@ -196,7 +202,7 @@ if [[ ${#NODE_IDS[@]} -gt 1 ]] ; then
         sleep $sleep_time
     done
 
-    if [[ "${SUCCESS}" != "0" ]] ; then
+    if [[ "${SUCCESS}" != "0" ]]; then
         echo "Cluster did not become stable, abort!"
         exit 1
     fi

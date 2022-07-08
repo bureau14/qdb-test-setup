@@ -2,7 +2,7 @@
 
 set -xe
 
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 
 # Static config
 
@@ -35,16 +35,15 @@ NODE_IDS=("0-0-0-1")
 
 # StackOverflow-driven development
 # - https://stackoverflow.com/a/14203146
-while [[ $# -gt 0 ]]
-do
+while [[ $# -gt 0 ]]; do
     key="$1"
 
     case $key in
-        -i|--node-ids)
-            # Node IDS are a comma-separated list
-            IFS=', ' read -r -a NODE_IDS <<< "$2"
-            shift # past argument
-            shift # past value
-            ;;
+    -i | --node-ids)
+        # Node IDS are a comma-separated list
+        IFS=', ' read -r -a NODE_IDS <<<"$2"
+        shift # past argument
+        shift # past value
+        ;;
     esac
 done

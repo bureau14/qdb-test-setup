@@ -7,16 +7,16 @@ source "$SCRIPT_DIR/binaries.sh"
 
 function qdb_add_user {
     USER_COUNT=1
-    local user_list=$1;shift
-    local user_private_key=$1;shift
-    local username=$1;shift
+    local user_list=$1; shift
+    local user_private_key=$1; shift
+    local username=$1; shift
     ${QDB_USER_ADD} -p ${user_list} -s ${user_private_key} -u ${username} --uid=${USER_COUNT} --superuser=1
     USER_COUNT=$((${USER_COUNT} + 1))
 }
 
 function qdb_gen_cluster_keys {
-    local public_key=$1;shift
-    local private_key=$1;shift
+    local public_key=$1; shift
+    local private_key=$1; shift
     ${QDB_CLUSTER_KEYGEN} -p ${public_key} -s ${private_key}
 }
 
@@ -38,20 +38,20 @@ function count_instances {
 }
 
 function check_address {
-    local address=$1;shift
+    local address=$1; shift
     case "$(uname)" in
-        # FIXME(Marek): How about `CYGWIN*`?
-        MINGW*|MSYS*)
-            local pid=$(NETSTAT.EXE -an -o | grep $address | grep "LISTENING" | tr -s [:space:] | cut -d' ' -f6)
-            if [[ $pid != "" ]]; then
-                ps aux | grep $pid | grep qdbd
-            fi
+    # FIXME(Marek): How about `CYGWIN*`?
+    MINGW* | MSYS*)
+        local pid=$(NETSTAT.EXE -an -o | grep $address | grep "LISTENING" | tr -s [:space:] | cut -d' ' -f6)
+        if [[ $pid != "" ]]; then
+            ps aux | grep $pid | grep qdbd
+        fi
         ;;
-        FreeBSD*)
-            sockstat -l | grep $address | tr -s [:space:] | cut -d' ' -f2
+    FreeBSD*)
+        sockstat -l | grep $address | tr -s [:space:] | cut -d' ' -f2
         ;;
-        *)
-            lsof -i -n -P | grep $address | grep LISTEN | cut -d' ' -f1
+    *)
+        lsof -i -n -P | grep $address | grep LISTEN | cut -d' ' -f1
         ;;
     esac
     echo ""
@@ -65,9 +65,9 @@ function cluster_wait_for_stabilization {
 }
 
 function print_instance_log {
-    local log_directory=$1;shift
-    local output=$1;shift
-    local err_output=$1;shift
+    local log_directory=$1; shift
+    local output=$1; shift
+    local err_output=$1; shift
     echo "${log_directory}: "
     cat ${log_directory}/* || true
 
@@ -81,15 +81,15 @@ function print_instance_log {
 function kill_instances {
     echo "Killing ${QDBD_FILENAME} instances..."
     case "$(uname)" in
-        MINGW*|MSYS*)
-            # we need double slashes for the flag to be recognized
-            # a simple slash would cause this error: Invalid argument/option - 'C:/Program Files/Git/IM'.
-            #
-            # See http://www.mingw.org/wiki/Posix_path_conversion
-            Taskkill //IM ${QDBD_FILENAME} //F || true
+    MINGW* | MSYS*)
+        # we need double slashes for the flag to be recognized
+        # a simple slash would cause this error: Invalid argument/option - 'C:/Program Files/Git/IM'.
+        #
+        # See http://www.mingw.org/wiki/Posix_path_conversion
+        Taskkill //IM ${QDBD_FILENAME} //F || true
         ;;
-        *)
-            pkill -SIGKILL -f ${QDBD_FILENAME} || true
+    *)
+        pkill -SIGKILL -f ${QDBD_FILENAME} || true
         ;;
     esac
     sleep .1
