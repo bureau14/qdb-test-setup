@@ -151,59 +151,62 @@ function join_with_char() {
     echo "$*"
 }
 
-INSECURE_URI=$(
-    echo -n 'qdb://'
-    join_with_char , "${INSECURE_IPS[@]}"
-)
-SECURE_URI=$(
-    echo -n 'qdb://'
-    join_with_char , "${SECURE_IPS[@]}"
-)
+function stabilize() {
+    local PARAMS="$1"; shift
 
-if [[ ${#NODE_IDS[@]} -gt 1 ]]; then
+    local NODE_IPS=($*)
+
+    NODE_URI=$(
+        echo -n 'qdb://'
+        join_with_char ',' "${NODE_IPS[@]}"
+    )
+    echo "Stabilizing cluster ${NODE_URI}..."
+
     SUCCESS=1
     # Clustered setup, wait for stabilization
     timeout=300 # stabilization can take a long time!
     end_time=$(($(date +%s) + $timeout))
     sleep_time=1
     while [ $(date +%s) -le $end_time ]; do
-        # HACKS(leon): THIS_URI_INSECURE and THIS_URI_SECURE are extremely hacky
-        # as they are the last set URIs for the cluster's node in the loop above..
-        #
-        # A better way to approach this is to build some utility functions for resolving
-        # node URIs... perhaps even initialize all these things in config.sh?
-        if [ "${QDB_ENABLE_INSECURE_CLUSTER}" != "0" ]; then
-            insecure_check=$(
-                cluster_wait_for_stabilization \
-                --cluster ${INSECURE_URI}
-            )
-        else
-            insecure_check="0"
-        fi
+        check=$(
+            cluster_wait_for_stabilization \
+            --cluster ${NODE_URI} \
+            ${PARAMS} \
+        )
 
-        if [ "${QDB_ENABLE_SECURE_CLUSTER}" != "0" ]; then
-            secure_check=$(
-                cluster_wait_for_stabilization \
-                --cluster ${SECURE_URI} \
-                --cluster-public-key ${CLUSTER_PUBLIC_KEY} \
-                --user-security-file ${USER_PRIVATE_KEY}
-            )
-        else
-            secure_check="0"
-        fi
-
-        if [[ "${insecure_check}" == "0" && "${secure_check}" == "0" ]]; then
-            echo "both clusters stable!"
+        if [[ "${check}" == "0" ]]; then
+            echo "cluster ${NODE_URI} is stable!"
             SUCCESS=0
             break
         fi
 
-        echo "Not all clusters are stable, sleeping for ${sleep_time}s before retry.."
+        echo "Cluster ${NODE_URI} is not stable, sleeping for ${sleep_time}s before retry.."
         sleep $sleep_time
     done
 
     if [[ "${SUCCESS}" != "0" ]]; then
-        echo "Cluster did not become stable, abort!"
+        echo "Cluster ${NODE_URI} did not become stable, abort!"
         exit 1
+    fi
+}
+
+if [[ ${#NODE_IDS[@]} -gt 1 ]]; then
+    # Stabilize each node separately and all nodes together.
+    if [ "${QDB_ENABLE_INSECURE_CLUSTER}" != "0" ]; then
+        for NODE_IP in "${INSECURE_IPS[@]}"; do
+            stabilize "" "${NODE_IP}"
+        done
+        stabilize "" "${INSECURE_IPS[@]}"
+    fi
+
+    if [ "${QDB_ENABLE_SECURE_CLUSTER}" != "0" ]; then
+        PARAMS="\
+            --cluster-public-key ${CLUSTER_PUBLIC_KEY} \
+            --user-security-file ${USER_PRIVATE_KEY}
+        "
+        for NODE_IP in "${SECURE_IPS[@]}"; do
+            stabilize "${PARAMS}" "${NODE_IP}"
+        done
+        stabilize "${PARAMS}" "${SECURE_IPS[@]}"
     fi
 fi
