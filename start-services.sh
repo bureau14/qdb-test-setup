@@ -97,7 +97,7 @@ for NODE_ID in "${NODE_IDS[@]}"; do
     COUNT=$((COUNT + 1))
 done
 
-sleep_time=.1
+sleep_time=1
 if [[ ${CMAKE_BUILD_TYPE} == "Debug" ]]; then
     sleep_time=3
 fi
@@ -150,6 +150,8 @@ function join_with_char() {
     local IFS="$1"; shift
     echo "$*"
 }
+
+sleep $sleep_time
 
 function stabilize() {
     local PARAMS="$1"; shift
