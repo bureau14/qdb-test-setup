@@ -67,7 +67,12 @@ for NODE_ID in "${NODE_IDS[@]}"; do
     INSECURE_IPS+=(${THIS_URI_INSECURE})
     SECURE_IPS+=(${THIS_URI_SECURE})
 
-    ARGS_COMMON="--license-file='${LICENSE_FILE}' --id ${NODE_ID} --enable-performance-profiling --total-sessions 512 --with-firehose \$qdb.firehose --publish-firehose=true "
+    ARGS_COMMON="--id ${NODE_ID} --enable-performance-profiling --total-sessions 512 --with-firehose \$qdb.firehose --publish-firehose=true "
+    if [[ -f "${LICENSE_FILE}" ]]
+    then
+        ARGS_COMMON="${ARGS_COMMON} --license-file=${LICENSE_FILE}"
+    fi
+    
     if [ "${QDB_ENABLE_INSECURE_CLUSTER}" != "0" ]; then
         echo "Cluster insecure:"
         ARGS_INSECURE="${ARGS_COMMON} -a ${THIS_URI_INSECURE} -r ${THIS_DATA_DIR_INSECURE} -l ${THIS_LOG_DIR_INSECURE} --firehose-endpoint ${THIS_URI_INSECURE_PUBLISHER}"
