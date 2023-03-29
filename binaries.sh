@@ -7,6 +7,8 @@ if [[ -z ${QDB_DIR+set} ]]; then
     echo "Setting QDB_DIR to ${QDB_DIR}"
 fi
 
+QDB_DIR=$(echo "${QDB_DIR}" | sed "s/${CMAKE_BUILD_TYPE}\/bin64\/${CMAKE_BUILD_TYPE}/bin64\/${CMAKE_BUILD_TYPE}/g")
+
 if [[ ! -d ${QDB_DIR} ]]; then
     echo "Please provide a valid binary directory, got: ${QDB_DIR}"
     exit 1
