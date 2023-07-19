@@ -103,7 +103,10 @@ for NODE_ID in "${NODE_IDS[@]}"; do
 done
 
 sleep_time=1
-if [[ ${CMAKE_BUILD_TYPE} == "Debug" ]]; then
+
+BUILD_TYPE=${CMAKE_BUILD_TYPE:-"Release"}
+if [[ ${CMAKE_BUILD_TYPE} == "Debug" ]]
+then
     sleep_time=3
 fi
 timeout=60
