@@ -72,7 +72,7 @@ for NODE_ID in "${NODE_IDS[@]}"; do
     then
         ARGS_COMMON="${ARGS_COMMON} --license-file=${LICENSE_FILE}"
     fi
-    
+
     if [ "${QDB_ENABLE_INSECURE_CLUSTER}" != "0" ]; then
         echo "Cluster insecure:"
         ARGS_INSECURE="${ARGS_COMMON} -a ${THIS_URI_INSECURE} -r ${THIS_DATA_DIR_INSECURE} -l ${THIS_LOG_DIR_INSECURE} --firehose-endpoint ${THIS_URI_INSECURE_PUBLISHER}"
@@ -105,7 +105,7 @@ done
 sleep_time=1
 
 BUILD_TYPE=${CMAKE_BUILD_TYPE:-"Release"}
-if [[ ${CMAKE_BUILD_TYPE} == "Debug" ]]
+if [[ ${BUILD_TYPE} == "Debug" ]]
 then
     sleep_time=3
 fi
