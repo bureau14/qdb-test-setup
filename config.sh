@@ -30,6 +30,29 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 
 : ${LICENSE_FILE:="license.key"}
 
+
+# Sanitize the variable 'QDB_SECURITY_MODE' into the booleans
+# 'QDB_ENABLE_SECURE_CLUSTER}' and 'QDB_ENABLE_INSECURE_CLUSTER'.
+: ${QDB_SECURITY_MODE:="both"}
+
+if [[ "${QDB_SECURITY_MODE}" == "both" ]] || [[ "${QDB_SECURITY_MODE}" == "secure" ]]
+then
+    echo "Enabling secure cluster"
+    QDB_ENABLE_SECURE_CLUSTER=1
+else
+    echo "Disabling secure cluster"
+    QDB_ENABLE_SECURE_CLUSTER=0
+fi
+
+if [[ "${QDB_SECURITY_MODE}" == "both" ]] || [[ "${QDB_SECURITY_MODE}" == "insecure" ]]
+then
+    echo "Enabling insecure cluster"
+    QDB_ENABLE_INSECURE_CLUSTER=1
+else
+    echo "Disabling insecure cluster"
+    QDB_ENABLE_INSECURE_CLUSTER=0
+fi
+
 # Runtime configuration, parse arguments
 NODE_IDS=("0-0-0-1")
 

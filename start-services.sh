@@ -2,15 +2,13 @@
 
 set -ex
 
-echo "QDB_ENABLE_INSECURE_CLUSTER=${QDB_ENABLE_INSECURE_CLUSTER:=1}"
-echo "QDB_ENABLE_SECURE_CLUSTER=${QDB_ENABLE_SECURE_CLUSTER:=1}"
-
-set -u
-
 SCRIPT_DIR="$(cd "$(dirname -- "${BASH_SOURCE[0]}")" >/dev/null && pwd)"
 source "$SCRIPT_DIR/config.sh" $@ # important: pass $@ as config.sh also parses our runtime args
 source "$SCRIPT_DIR/utils.sh"
 source "$SCRIPT_DIR/cleanup.sh"
+
+echo "QDB_ENABLE_INSECURE_CLUSTER=${QDB_ENABLE_INSECURE_CLUSTER:=1}"
+echo "QDB_ENABLE_SECURE_CLUSTER=${QDB_ENABLE_SECURE_CLUSTER:=1}"
 
 kill_instances
 full_cleanup
