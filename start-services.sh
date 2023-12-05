@@ -65,7 +65,20 @@ for NODE_ID in "${NODE_IDS[@]}"; do
     INSECURE_IPS+=(${THIS_URI_INSECURE})
     SECURE_IPS+=(${THIS_URI_SECURE})
 
-    ARGS_COMMON="--id ${NODE_ID} --enable-performance-profiling --total-sessions 512 --with-firehose \$qdb.firehose --publish-firehose=true "
+    ARGS_COMMON="--id ${NODE_ID} --enable-performance-profiling --total-sessions 512 "
+
+    # Enable firehose by default, but allow disabling it.
+    #
+    # Added 2023-12-05 by Leon because we were running into timeouts with cluster_purge_all timing out on
+    # the firehose in the benchmark scripts and we don't need the firehose at all for this.
+
+    ENABLE_FIREHOSE=${QDB_ENABLE_FIREHOSE:-1}
+
+    if [[ "${ENABLE_FIREHOSE}" == "1" ]]
+    then
+        ARGS_COMMON="${ARGS_COMMON} --with-firehose \$qdb.firehose --publish-firehose=true "
+    fi
+
     if [[ -f "${LICENSE_FILE}" ]]
     then
         ARGS_COMMON="${ARGS_COMMON} --license-file=${LICENSE_FILE}"
