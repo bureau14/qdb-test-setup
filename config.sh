@@ -27,9 +27,16 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 : ${CONFIG_SECURE:="${SCRIPT_DIR}/default.qdbd.cfg"}
 : ${CONSOLE_LOG_SECURE:="qdbd_log_secure.out.txt"}
 : ${CONSOLE_ERR_LOG_SECURE:="qdbd_log_secure.err.txt"}
+: ${QDB_LOG_ARCHIVE_PATH:="${SCRIPT_DIR}/logs"}
 
 : ${LICENSE_FILE:="license.key"}
 
+
+if [ ! -d ${QDB_LOG_ARCHIVE_PATH} ]
+then
+    echo "Log archive path ${QDB_LOG_ARCHIVE_PATH} does not yet exist, creating..."
+    mkdir -v -p ${QDB_LOG_ARCHIVE_PATH}
+fi
 
 # Sanitize the variable 'QDB_SECURITY_MODE' into the booleans
 # 'QDB_ENABLE_SECURE_CLUSTER}' and 'QDB_ENABLE_INSECURE_CLUSTER'.
