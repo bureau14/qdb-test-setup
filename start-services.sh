@@ -65,7 +65,7 @@ for NODE_ID in "${NODE_IDS[@]}"; do
     INSECURE_IPS+=(${THIS_URI_INSECURE})
     SECURE_IPS+=(${THIS_URI_SECURE})
 
-    ARGS_COMMON="--id ${NODE_ID} --enable-performance-profiling --total-sessions 512 --local-logger-json-file-output=true --log-level=detailed "
+    ARGS_COMMON="--id ${NODE_ID} --enable-performance-profiling --total-sessions 512 --local-logger-json-file-output=true --log-level=detailed --local-network-log-slow-operation-ms=1 "
 
     # Enable firehose by default, but allow disabling it.
     #
