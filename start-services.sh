@@ -70,7 +70,7 @@ for NODE_ID in "${NODE_IDS[@]}"; do
     # Set memory limits, default to 80% for hard 60% for soft
     MEMORY_LIMIT_HARD=${QDB_MEMORY_LIMIT_HARD:-80}
     MEMORY_LIMIT_SOFT=${QDB_MEMORY_LIMIT_SOFT:-60}
-    ARGS_COMMON="--local-limiter-max-bytes-soft-percentage ${MEMORY_LIMIT_SOFT} --local-limiter-max-bytes-hard-percentage ${MEMORY_LIMIT_HARD}"
+    ARGS_COMMON="${ARGS_COMMON} --local-limiter-max-bytes-soft-percentage ${MEMORY_LIMIT_SOFT} --local-limiter-max-bytes-hard-percentage ${MEMORY_LIMIT_HARD}"
 
 
     # Enable firehose by default, but allow disabling it.
