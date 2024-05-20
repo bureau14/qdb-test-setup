@@ -65,13 +65,19 @@ for NODE_ID in "${NODE_IDS[@]}"; do
     INSECURE_IPS+=(${THIS_URI_INSECURE})
     SECURE_IPS+=(${THIS_URI_SECURE})
 
-    ARGS_COMMON="--id ${NODE_ID} --enable-performance-profiling --total-sessions 512 --local-logger-json-file-output=true --log-level=detailed --local-network-log-slow-operation-ms=1 "
+    ARGS_COMMON="--id ${NODE_ID} --enable-performance-profiling --total-sessions 512 --log-level=detailed --local-network-log-slow-operation-ms=1 "
 
     # Set memory limits, default to 80% for hard 60% for soft
     MEMORY_LIMIT_HARD=${QDB_MEMORY_LIMIT_HARD:-80}
     MEMORY_LIMIT_SOFT=${QDB_MEMORY_LIMIT_SOFT:-60}
     ARGS_COMMON="${ARGS_COMMON} --local-limiter-max-bytes-soft-percentage ${MEMORY_LIMIT_SOFT} --local-limiter-max-bytes-hard-percentage ${MEMORY_LIMIT_HARD}"
 
+    JSON_LOGGING=${QDB_ENABLE_JSON_LOGGER:-1}
+
+    if [[ "${JSON_LOGGING}" == "1" ]]
+    then
+        ARGS_COMMON="${ARGS_COMMON} --local-logger-json-file-output=true"
+    fi
 
     # Enable firehose by default, but allow disabling it.
     #
