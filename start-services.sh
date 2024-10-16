@@ -116,9 +116,18 @@ for NODE_ID in "${NODE_IDS[@]}"; do
     if [ "${QDB_ENABLE_SECURE_CLUSTER}" != "0" ]; then
         echo "Cluster secure:"
         ARGS_SECURE="${ARGS_COMMON} -a ${THIS_URI_SECURE} -r ${THIS_DATA_DIR_SECURE} -l ${THIS_LOG_DIR_SECURE} --firehose-endpoint ${THIS_URI_SECURE_PUBLISHER} --security=true --cluster-private-file=${CLUSTER_PRIVATE_KEY} --user-list=${USER_LIST}"
+
+
+
+        if [[ "${QDB_ENCRYPT_TRAFFIC}" != "0" ]]
+        then
+            ARGS_SECURE="${ARGS_SECURE} --global-security-encrypt-traffic=1"
+        fi
+
         if [[ -f ${CONFIG_SECURE} ]]; then
             ARGS_SECURE="${ARGS_SECURE} -c ${CONFIG_SECURE}"
         fi
+
         qdb_start "${ARGS_SECURE}" ${CONSOLE_LOG_SECURE} ${CONSOLE_ERR_LOG_SECURE}
     fi
 

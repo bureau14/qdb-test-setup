@@ -60,6 +60,14 @@ else
     QDB_ENABLE_INSECURE_CLUSTER=0
 fi
 
+: ${QDB_ENCRYPT_TRAFFIC:=0}
+
+if [[ "${QDB_ENCRYPT_TRAFFIC}" != "0" ]]
+then
+    echo "Enabling full stream encryption"
+    QDB_ENCRYPT_TRAFFIC=1
+fi
+
 # Runtime configuration, parse arguments
 NODE_IDS=("0-0-0-1")
 
