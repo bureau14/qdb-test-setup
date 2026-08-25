@@ -11,18 +11,13 @@ function archive_log_dir {
 
     local tar=$(command -v tar)
 
-    if [ ! -d "${QDB_LOG_ARCHIVE_PATH}" ]
-    then
-        echo "Unable to archive: not a directory: ${QDB_LOG_ARCHIVE_PATH}"
-        exit -1
-    fi
-
     local epoch=$(date +%s)
     local archive_file="${QDB_LOG_ARCHIVE_PATH}/qdbd-logs-${epoch}-${archive_name}.tar.gz"
 
     if [ -d "$log_dir" ]
     then
         echo "Archiving log dir: $log_dir"
+        mkdir -p "${QDB_LOG_ARCHIVE_PATH}"
         ${tar} -czvf ${archive_file} ${log_dir}
     fi
 }
