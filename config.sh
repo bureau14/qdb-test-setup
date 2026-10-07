@@ -29,6 +29,11 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 : ${CONSOLE_ERR_LOG_SECURE:="qdbd_log_secure.err.txt"}
 : ${QDB_LOG_ARCHIVE_PATH:="logs"}
 
+# qdbd flushes its log every 3000ms by default and instances are stopped with
+# SIGKILL, which never flushes. Keep the interval low so the final seconds of a
+# crashing daemon reach the log files. qdbd rejects anything below 10ms.
+: ${QDB_LOG_FLUSH_INTERVAL_MS:=100}
+
 : ${LICENSE_FILE:="license.key"}
 
 # Sanitize the variable 'QDB_SECURITY_MODE' into the booleans

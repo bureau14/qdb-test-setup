@@ -65,7 +65,11 @@ for NODE_ID in "${NODE_IDS[@]}"; do
     INSECURE_IPS+=(${THIS_URI_INSECURE})
     SECURE_IPS+=(${THIS_URI_SECURE})
 
-    ARGS_COMMON="--id ${NODE_ID} --enable-performance-profiling --total-sessions 512 --log-level=detailed --local-network-log-slow-operation-ms=1 "
+    # --log-flush-interval is the "Logging options" sibling of --log-level, which
+    # we already use here. It takes a plain integer in milliseconds, despite the
+    # help text saying seconds, and maps to the same setting as
+    # --local-logger-flush-interval.
+    ARGS_COMMON="--id ${NODE_ID} --enable-performance-profiling --total-sessions 512 --log-level=detailed --log-flush-interval=${QDB_LOG_FLUSH_INTERVAL_MS} --local-network-log-slow-operation-ms=1 "
 
     # Set memory limits, default to 80% for hard 60% for soft
     MEMORY_LIMIT_HARD=${QDB_MEMORY_LIMIT_HARD:-80}

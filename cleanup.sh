@@ -5,6 +5,10 @@ set -xe
 SCRIPT_DIR="$(cd "$(dirname -- "${BASH_SOURCE[0]}")" >/dev/null && pwd)"
 source "$SCRIPT_DIR/config.sh"
 
+# Usage: archive_log_dir <name> <log_dir> [extra_file...]
+#
+# Extra files are typically the console stdout/stderr captures of the daemon;
+# they are only added when they exist, so a missing file never fails the tar.
 function archive_log_dir {
     local archive_name="$1";shift
     local log_dir="$1";shift
@@ -14,17 +18,27 @@ function archive_log_dir {
     local epoch=$(date +%s)
     local archive_file="${QDB_LOG_ARCHIVE_PATH}/qdbd-logs-${epoch}-${archive_name}.tar.gz"
 
+    local inputs=()
+    local extra
+    for extra in "$@"
+    do
+        if [ -f "$extra" ]
+        then
+            inputs+=("$extra")
+        fi
+    done
+
     if [ -d "$log_dir" ]
     then
         echo "Archiving log dir: $log_dir"
         mkdir -p "${QDB_LOG_ARCHIVE_PATH}"
-        ${tar} -czvf ${archive_file} ${log_dir}
+        ${tar} -czvf ${archive_file} ${log_dir} ${inputs[@]+"${inputs[@]}"}
     fi
 }
 
 function archive {
-    archive_log_dir insecure ${LOG_DIR_INSECURE}
-    archive_log_dir secure   ${LOG_DIR_SECURE}
+    archive_log_dir insecure ${LOG_DIR_INSECURE} ${CONSOLE_LOG_INSECURE} ${CONSOLE_ERR_LOG_INSECURE}
+    archive_log_dir secure   ${LOG_DIR_SECURE}   ${CONSOLE_LOG_SECURE}   ${CONSOLE_ERR_LOG_SECURE}
 }
 
 function cleanup {
