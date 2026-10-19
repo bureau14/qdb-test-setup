@@ -34,6 +34,9 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 # crashing daemon reach the log files. qdbd rejects anything below 10ms.
 : ${QDB_LOG_FLUSH_INTERVAL_MS:=100}
 
+# Maximum number of concurrent client sessions per qdbd instance.
+: ${QDB_TOTAL_SESSIONS:=8192}
+
 : ${LICENSE_FILE:="license.key"}
 
 # Sanitize the variable 'QDB_SECURITY_MODE' into the booleans
