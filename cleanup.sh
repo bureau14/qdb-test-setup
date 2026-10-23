@@ -3,7 +3,12 @@
 set -xe
 
 SCRIPT_DIR="$(cd "$(dirname -- "${BASH_SOURCE[0]}")" >/dev/null && pwd)"
-source "$SCRIPT_DIR/config.sh"
+# Cleanup uses the command's configuration; loading it again would mistake
+# default credential paths for user-provided inputs.
+
+# The caller must keep security/config/license files outside data/log/archive
+# paths and console outputs; files placed there may be archived, overwritten or
+# removed even when direct credential removal is disabled.
 
 # Usage: archive_log_dir <name> <log_dir> [extra_file...]
 #
@@ -50,10 +55,13 @@ function cleanup {
     echo "Removing ${DATA_DIR_SECURE}..."
     rm -Rf ${DATA_DIR_SECURE} || true
 
-    rm -Rf ${USER_LIST} || true
-    rm -Rf ${USER_PRIVATE_KEY} || true
-    rm -Rf ${CLUSTER_PUBLIC_KEY} || true
-    rm -Rf ${CLUSTER_PRIVATE_KEY} || true
+    # Remove setup-generated credentials only; don't remove credentials provided by the user.
+    if [[ ${QDB_GENERATE_SECURITY} == 1 ]]; then
+        rm -Rf ${USER_LIST} || true
+        rm -Rf ${USER_PRIVATE_KEY} || true
+        rm -Rf ${CLUSTER_PUBLIC_KEY} || true
+        rm -Rf ${CLUSTER_PRIVATE_KEY} || true
+    fi
 }
 
 function full_cleanup {

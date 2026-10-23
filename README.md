@@ -23,4 +23,4 @@ The expected path for the binaries is: `./qdb/bin`
 ## Cleanup
 In the case you would like to fully cleanup after use (stop does not remove everything), you can use this command:
 
-`bash -c "source ./cleanup.sh && full_cleanup"`
+`bash -c "source ./config.sh; source ./cleanup.sh; full_cleanup"`

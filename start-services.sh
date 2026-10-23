@@ -14,7 +14,7 @@ kill_instances
 full_cleanup
 check_binaries
 
-if [ "${QDB_ENABLE_SECURE_CLUSTER}" != "0" ]; then
+if [[ ${QDB_ENABLE_SECURE_CLUSTER} != 0 && ${QDB_GENERATE_SECURITY} == 1 ]]; then
     qdb_add_user ${USER_LIST} ${USER_PRIVATE_KEY} "test-user"
     qdb_gen_cluster_keys ${CLUSTER_PUBLIC_KEY} ${CLUSTER_PRIVATE_KEY}
 fi
@@ -30,6 +30,7 @@ SECURE_IPS=()
 #
 # The clusters will end up looking like this:
 #
+# With the default endpoints:
 # - port 2836, cluster insecure, node 1
 # - port 2838, cluster secure, node 1
 # - port 2840, cluster insecure, node 2
@@ -40,11 +41,15 @@ SECURE_IPS=()
 # the address etc using the `-a` `--id` flags.
 COUNT=0
 for NODE_ID in "${NODE_IDS[@]}"; do
-    # Magic number 4, as we need 4 ports per secure/insecure "pair"
-    PORT_INSECURE=$((2836 + ($COUNT * 4)))
-    PORT_SECURE=$((2838 + ($COUNT * 4)))
-    PORT_INSECURE_PUBLISHER=$((3836 + ($COUNT * 4)))
-    PORT_SECURE_PUBLISHER=$((3838 + ($COUNT * 4)))
+    # Four ports per secure/insecure pair; the caller supplies the address.
+    PORT_INSECURE=$((2836 + (COUNT * 4)))
+    PORT_SECURE=$((2838 + (COUNT * 4)))
+    PORT_INSECURE_PUBLISHER=$((3836 + (COUNT * 4)))
+    PORT_SECURE_PUBLISHER=$((3838 + (COUNT * 4)))
+    THIS_URI_INSECURE="${QDB_IP}:${PORT_INSECURE}"
+    THIS_URI_SECURE="${QDB_IP}:${PORT_SECURE}"
+    THIS_URI_INSECURE_PUBLISHER="${QDB_IP}:${PORT_INSECURE_PUBLISHER}"
+    THIS_URI_SECURE_PUBLISHER="${QDB_IP}:${PORT_SECURE_PUBLISHER}"
 
     THIS_DATA_DIR_INSECURE="${DATA_DIR_INSECURE}/${NODE_ID}"
     THIS_LOG_DIR_INSECURE="${LOG_DIR_INSECURE}/${NODE_ID}"
@@ -52,18 +57,14 @@ for NODE_ID in "${NODE_IDS[@]}"; do
     THIS_LOG_DIR_SECURE="${LOG_DIR_SECURE}/${NODE_ID}"
 
     # Ensure directories exist
-    mkdir -p ${THIS_DATA_DIR_INSECURE} || true
-    mkdir -p ${THIS_LOG_DIR_INSECURE} || true
-    mkdir -p ${THIS_DATA_DIR_SECURE} || true
-    mkdir -p ${THIS_LOG_DIR_SECURE} || true
-
-    THIS_URI_INSECURE="127.0.0.1:${PORT_INSECURE}"
-    THIS_URI_SECURE="127.0.0.1:${PORT_SECURE}"
-    THIS_URI_INSECURE_PUBLISHER="127.0.0.1:${PORT_INSECURE_PUBLISHER}"
-    THIS_URI_SECURE_PUBLISHER="127.0.0.1:${PORT_SECURE_PUBLISHER}"
-
-    INSECURE_IPS+=(${THIS_URI_INSECURE})
-    SECURE_IPS+=(${THIS_URI_SECURE})
+    if [[ $QDB_ENABLE_INSECURE_CLUSTER != 0 ]]; then
+        mkdir -p ${THIS_DATA_DIR_INSECURE} ${THIS_LOG_DIR_INSECURE}
+        INSECURE_IPS+=(${THIS_URI_INSECURE})
+    fi
+    if [[ $QDB_ENABLE_SECURE_CLUSTER != 0 ]]; then
+        mkdir -p ${THIS_DATA_DIR_SECURE} ${THIS_LOG_DIR_SECURE}
+        SECURE_IPS+=(${THIS_URI_SECURE})
+    fi
 
     # --log-flush-interval is the "Logging options" sibling of --log-level, which
     # we already use here. It takes a plain integer in milliseconds, despite the
@@ -102,16 +103,17 @@ for NODE_ID in "${NODE_IDS[@]}"; do
 
     if [ "${QDB_ENABLE_INSECURE_CLUSTER}" != "0" ]; then
         echo "Cluster insecure:"
-        ARGS_INSECURE="${ARGS_COMMON} -a ${THIS_URI_INSECURE} -r ${THIS_DATA_DIR_INSECURE} -l ${THIS_LOG_DIR_INSECURE} --firehose-endpoint ${THIS_URI_INSECURE_PUBLISHER}"
+        ARGS_INSECURE="${ARGS_COMMON} -a ${THIS_URI_INSECURE} -r ${THIS_DATA_DIR_INSECURE} -l ${THIS_LOG_DIR_INSECURE}"
         if [[ -f ${CONFIG_INSECURE} ]]; then
             ARGS_INSECURE="${ARGS_INSECURE} -c ${CONFIG_INSECURE}"
+        fi
+        if [[ $ENABLE_FIREHOSE == 1 ]]; then
+            ARGS_INSECURE="${ARGS_INSECURE} --firehose-endpoint ${THIS_URI_INSECURE_PUBLISHER}"
         fi
 
         if [[ "$COUNT" != "0" ]]; then
             # Not the first node, which means we need to bootstrap using the previous node
-            BOOTSTRAP_PORT_INSECURE=$((2836 + (($COUNT - 1) * 4)))
-            BOOTSTRAP_URI_INSECURE="127.0.0.1:${BOOTSTRAP_PORT_INSECURE}"
-            ARGS_INSECURE="${ARGS_INSECURE} --peer ${BOOTSTRAP_URI_INSECURE}"
+            ARGS_INSECURE="${ARGS_INSECURE} --peer ${INSECURE_IPS[$((COUNT - 1))]}"
         fi
 
         qdb_start "${ARGS_INSECURE}" ${CONSOLE_LOG_INSECURE} ${CONSOLE_ERR_LOG_INSECURE}
@@ -119,17 +121,16 @@ for NODE_ID in "${NODE_IDS[@]}"; do
 
     if [ "${QDB_ENABLE_SECURE_CLUSTER}" != "0" ]; then
         echo "Cluster secure:"
-        ARGS_SECURE="${ARGS_COMMON} -a ${THIS_URI_SECURE} -r ${THIS_DATA_DIR_SECURE} -l ${THIS_LOG_DIR_SECURE} --firehose-endpoint ${THIS_URI_SECURE_PUBLISHER} --security=true --cluster-private-file=${CLUSTER_PRIVATE_KEY} --user-list=${USER_LIST}"
-
-
-
-        if [[ "${QDB_ENCRYPT_TRAFFIC}" != "0" ]]
-        then
-            ARGS_SECURE="${ARGS_SECURE} --global-security-encrypt-traffic=1"
-        fi
-
+        ARGS_SECURE="${ARGS_COMMON} -a ${THIS_URI_SECURE} -r ${THIS_DATA_DIR_SECURE} -l ${THIS_LOG_DIR_SECURE} --security=true --cluster-private-file=${CLUSTER_PRIVATE_KEY} --user-list=${USER_LIST} --global-security-encrypt-traffic=${QDB_ENCRYPT_TRAFFIC}"
         if [[ -f ${CONFIG_SECURE} ]]; then
             ARGS_SECURE="${ARGS_SECURE} -c ${CONFIG_SECURE}"
+        fi
+        if [[ $ENABLE_FIREHOSE == 1 ]]; then
+            ARGS_SECURE="${ARGS_SECURE} --firehose-endpoint ${THIS_URI_SECURE_PUBLISHER}"
+        fi
+
+        if [[ "$COUNT" != "0" ]]; then
+            ARGS_SECURE="${ARGS_SECURE} --peer ${SECURE_IPS[$((COUNT - 1))]}"
         fi
 
         qdb_start "${ARGS_SECURE}" ${CONSOLE_LOG_SECURE} ${CONSOLE_ERR_LOG_SECURE}
