@@ -3,8 +3,7 @@
 set -xe
 
 SCRIPT_DIR="$(cd "$(dirname -- "${BASH_SOURCE[0]}")" >/dev/null && pwd)"
-# Cleanup uses the command's configuration; loading it again would mistake
-# default credential paths for user-provided inputs.
+source "$SCRIPT_DIR/config.sh"
 
 # The caller must keep security/config/license files outside data/log/archive
 # paths and console outputs; files placed there may be archived, overwritten or

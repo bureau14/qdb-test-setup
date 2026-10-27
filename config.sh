@@ -9,11 +9,21 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 # Use `: ${VAR:=default_value_if_not_set}` for configurable variables.
 # `:` is a no-op.
 
-# Generate all security by default. Supplied security is used as a complete set;
-# it disables both generators and credential removal. Load config once per command.
-QDB_GENERATE_SECURITY=1
-if [[ -n ${USER_LIST+x}${USER_PRIVATE_KEY+x}${CLUSTER_PUBLIC_KEY+x}${CLUSTER_PRIVATE_KEY+x} ]]; then
-    QDB_GENERATE_SECURITY=0
+# By default, generate credentials for the secure cluster. To use your own files,
+# set USER_LIST, USER_PRIVATE_KEY, CLUSTER_PUBLIC_KEY and CLUSTER_PRIVATE_KEY
+# to the complete set of paths required by your setup. Setting any of these
+# variables disables credential generation and direct credential removal by default.
+# QDB_GENERATE_SECURITY=0 explicitly disables those operations; =1 enables them
+# even for user-provided paths. Generation still requires the secure cluster.
+# Changing credential paths after initialization also requires updating this flag.
+
+# Check whether QDB_GENERATE_SECURITY is already set; infer a default only when
+# unset so explicit overrides and earlier imports' decisions are preserved.
+if [[ -z ${QDB_GENERATE_SECURITY+x} ]]; then
+    QDB_GENERATE_SECURITY=1
+    if [[ -n ${USER_LIST+x}${USER_PRIVATE_KEY+x}${CLUSTER_PUBLIC_KEY+x}${CLUSTER_PRIVATE_KEY+x} ]]; then
+        QDB_GENERATE_SECURITY=0
+    fi
 fi
 
 : ${USER_LIST:="users.cfg"}
@@ -21,8 +31,7 @@ fi
 : ${CLUSTER_PUBLIC_KEY:="cluster_public.key"}
 : ${CLUSTER_PRIVATE_KEY:="cluster_private.key"}
 
-# The caller supplies a reachable IPv4 address. Use it for listening,
-# advertisement, peers and publishers.
+# The caller supplies a reachable IP address. Use it for listening, advertisement, peers and publishers.
 : ${QDB_IP:="127.0.0.1"}
 URI_INSECURE="${QDB_IP}:2836"
 URI_SECURE="${QDB_IP}:2838"
@@ -82,7 +91,10 @@ then
 fi
 
 # Runtime configuration, parse arguments
-NODE_IDS=("0-0-0-1")
+# Keep existing node IDs on re-sourcing; explicit --node-ids still replaces them.
+if ! declare -p NODE_IDS >/dev/null 2>&1; then
+    NODE_IDS=("0-0-0-1")
+fi
 
 # StackOverflow-driven development
 # - https://stackoverflow.com/a/14203146

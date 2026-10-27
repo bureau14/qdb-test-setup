@@ -57,14 +57,13 @@ for NODE_ID in "${NODE_IDS[@]}"; do
     THIS_LOG_DIR_SECURE="${LOG_DIR_SECURE}/${NODE_ID}"
 
     # Ensure directories exist
-    if [[ $QDB_ENABLE_INSECURE_CLUSTER != 0 ]]; then
-        mkdir -p ${THIS_DATA_DIR_INSECURE} ${THIS_LOG_DIR_INSECURE}
-        INSECURE_IPS+=(${THIS_URI_INSECURE})
-    fi
-    if [[ $QDB_ENABLE_SECURE_CLUSTER != 0 ]]; then
-        mkdir -p ${THIS_DATA_DIR_SECURE} ${THIS_LOG_DIR_SECURE}
-        SECURE_IPS+=(${THIS_URI_SECURE})
-    fi
+    mkdir -p ${THIS_DATA_DIR_INSECURE} || true
+    mkdir -p ${THIS_LOG_DIR_INSECURE} || true
+    mkdir -p ${THIS_DATA_DIR_SECURE} || true
+    mkdir -p ${THIS_LOG_DIR_SECURE} || true
+
+    INSECURE_IPS+=(${THIS_URI_INSECURE})
+    SECURE_IPS+=(${THIS_URI_SECURE})
 
     # --log-flush-interval is the "Logging options" sibling of --log-level, which
     # we already use here. It takes a plain integer in milliseconds, despite the
