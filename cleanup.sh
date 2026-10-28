@@ -5,9 +5,9 @@ set -xe
 SCRIPT_DIR="$(cd "$(dirname -- "${BASH_SOURCE[0]}")" >/dev/null && pwd)"
 source "$SCRIPT_DIR/config.sh"
 
-# The caller must keep security/config/license files outside data/log/archive
-# paths and console outputs; files placed there may be archived, overwritten or
-# removed even when direct credential removal is disabled.
+# User can provide his own security/config/license files.
+# These files won't be deleted at cleanup unless they are placed in the fixture
+# data/log/archive paths - these directories are archived and removed
 
 # Usage: archive_log_dir <name> <log_dir> [extra_file...]
 #
