@@ -49,11 +49,14 @@ or removed even when `QDB_GENERATE_SECURITY=0`.
 
 ## Listen on a specific IP
 
-By default, servers listen on `127.0.0.1`. Set `QDB_IP` to an address assigned to
-the server to use it for listeners, publisher endpoints, peers and readiness
-checks. Replace the example address with the server's actual IP:
+By default, servers listen on `127.0.0.1`. Set `QDB_LISTEN_ON`, named after qdbd's
+`listen_on` setting, to an address assigned to the server to use it for listeners,
+publisher endpoints, peers and default readiness checks. Ports are assigned by
+the scripts. Replace the example address with the server's actual IP; secure-only
+mode avoids exposing an unauthenticated cluster:
 
 ```bash
-export QDB_IP=192.168.1.10
+export QDB_LISTEN_ON=192.168.1.10
+export QDB_SECURITY_MODE=secure
 ./start-services.sh
 ```
