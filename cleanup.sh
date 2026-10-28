@@ -55,7 +55,7 @@ function cleanup {
     rm -Rf ${DATA_DIR_SECURE} || true
 
     # Remove setup-generated credentials only; don't remove credentials provided by the user.
-    if [[ ${QDB_GENERATE_SECURITY} == 1 ]]; then
+    if [[ ${QDB_GENERATE_SECURITY} != 0 ]]; then
         rm -Rf ${USER_LIST} || true
         rm -Rf ${USER_PRIVATE_KEY} || true
         rm -Rf ${CLUSTER_PUBLIC_KEY} || true

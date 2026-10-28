@@ -14,7 +14,7 @@ kill_instances
 full_cleanup
 check_binaries
 
-if [[ "${QDB_ENABLE_SECURE_CLUSTER}" != "0" && "${QDB_GENERATE_SECURITY}" == "1" ]]; then
+if [[ "${QDB_ENABLE_SECURE_CLUSTER}" != "0" && "${QDB_GENERATE_SECURITY}" != "0" ]]; then
     qdb_add_user ${USER_LIST} ${USER_PRIVATE_KEY} "test-user"
     qdb_gen_cluster_keys ${CLUSTER_PUBLIC_KEY} ${CLUSTER_PRIVATE_KEY}
 fi

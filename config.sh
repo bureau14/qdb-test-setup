@@ -13,7 +13,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 # set QDB_GENERATE_SECURITY=0 and provide USER_LIST, USER_PRIVATE_KEY,
 # CLUSTER_PUBLIC_KEY and CLUSTER_PRIVATE_KEY paths required by your setup.
 # QDB_GENERATE_SECURITY=0 disables generation and direct credential removal;
-# =1 enables them even for user-provided paths. File completeness is caller-owned.
+# any other value enables them even for user-provided paths. File completeness is caller-owned.
 : "${QDB_GENERATE_SECURITY:=1}"
 
 : ${USER_LIST:="users.cfg"}

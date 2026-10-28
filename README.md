@@ -28,8 +28,9 @@ In the case you would like to fully cleanup after use (stop does not remove ever
 ## Use existing credentials
 
 Set `QDB_GENERATE_SECURITY=0` to skip credential generation and credential
-deletion during startup, stop and cleanup. Custom file paths alone do not disable
-these operations. For example, to run cluster with existing files:
+deletion during startup, stop and cleanup. Only `0` disables these operations;
+the default is `1`. Custom file paths alone do not disable them. For example,
+to run cluster with existing files:
 
 ```bash
 export QDB_GENERATE_SECURITY=0
