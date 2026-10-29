@@ -5,6 +5,10 @@ set -xe
 SCRIPT_DIR="$(cd "$(dirname -- "${BASH_SOURCE[0]}")" >/dev/null && pwd)"
 source "$SCRIPT_DIR/config.sh"
 
+# User can provide his own security/config/license files.
+# These files won't be deleted at cleanup unless they are placed in the fixture
+# data/log/archive paths - these directories are archived and removed
+
 # Usage: archive_log_dir <name> <log_dir> [extra_file...]
 #
 # Extra files are typically the console stdout/stderr captures of the daemon;
@@ -50,10 +54,13 @@ function cleanup {
     echo "Removing ${DATA_DIR_SECURE}..."
     rm -Rf ${DATA_DIR_SECURE} || true
 
-    rm -Rf ${USER_LIST} || true
-    rm -Rf ${USER_PRIVATE_KEY} || true
-    rm -Rf ${CLUSTER_PUBLIC_KEY} || true
-    rm -Rf ${CLUSTER_PRIVATE_KEY} || true
+    # Remove setup-generated credentials only; don't remove credentials provided by the user.
+    if [[ ${QDB_GENERATE_SECURITY} != 0 ]]; then
+        rm -Rf ${USER_LIST} || true
+        rm -Rf ${USER_PRIVATE_KEY} || true
+        rm -Rf ${CLUSTER_PUBLIC_KEY} || true
+        rm -Rf ${CLUSTER_PRIVATE_KEY} || true
+    fi
 }
 
 function full_cleanup {

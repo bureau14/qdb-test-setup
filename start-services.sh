@@ -14,7 +14,7 @@ kill_instances
 full_cleanup
 check_binaries
 
-if [ "${QDB_ENABLE_SECURE_CLUSTER}" != "0" ]; then
+if [[ "${QDB_ENABLE_SECURE_CLUSTER}" != "0" && "${QDB_GENERATE_SECURITY}" != "0" ]]; then
     qdb_add_user ${USER_LIST} ${USER_PRIVATE_KEY} "test-user"
     qdb_gen_cluster_keys ${CLUSTER_PUBLIC_KEY} ${CLUSTER_PRIVATE_KEY}
 fi
@@ -57,10 +57,10 @@ for NODE_ID in "${NODE_IDS[@]}"; do
     mkdir -p ${THIS_DATA_DIR_SECURE} || true
     mkdir -p ${THIS_LOG_DIR_SECURE} || true
 
-    THIS_URI_INSECURE="127.0.0.1:${PORT_INSECURE}"
-    THIS_URI_SECURE="127.0.0.1:${PORT_SECURE}"
-    THIS_URI_INSECURE_PUBLISHER="127.0.0.1:${PORT_INSECURE_PUBLISHER}"
-    THIS_URI_SECURE_PUBLISHER="127.0.0.1:${PORT_SECURE_PUBLISHER}"
+    THIS_URI_INSECURE="${QDB_LISTEN_ON}:${PORT_INSECURE}"
+    THIS_URI_SECURE="${QDB_LISTEN_ON}:${PORT_SECURE}"
+    THIS_URI_INSECURE_PUBLISHER="${QDB_LISTEN_ON}:${PORT_INSECURE_PUBLISHER}"
+    THIS_URI_SECURE_PUBLISHER="${QDB_LISTEN_ON}:${PORT_SECURE_PUBLISHER}"
 
     INSECURE_IPS+=(${THIS_URI_INSECURE})
     SECURE_IPS+=(${THIS_URI_SECURE})
@@ -110,7 +110,7 @@ for NODE_ID in "${NODE_IDS[@]}"; do
         if [[ "$COUNT" != "0" ]]; then
             # Not the first node, which means we need to bootstrap using the previous node
             BOOTSTRAP_PORT_INSECURE=$((2836 + (($COUNT - 1) * 4)))
-            BOOTSTRAP_URI_INSECURE="127.0.0.1:${BOOTSTRAP_PORT_INSECURE}"
+            BOOTSTRAP_URI_INSECURE="${QDB_LISTEN_ON}:${BOOTSTRAP_PORT_INSECURE}"
             ARGS_INSECURE="${ARGS_INSECURE} --peer ${BOOTSTRAP_URI_INSECURE}"
         fi
 
